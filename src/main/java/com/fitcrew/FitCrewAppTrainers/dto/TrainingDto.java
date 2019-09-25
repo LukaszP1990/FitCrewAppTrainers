@@ -22,7 +22,7 @@ public class TrainingDto implements Serializable {
     @NotNull(message = "Name of training cannot be null")
     @Size(min = 2, max = 20, message = "Name of training must be equal or grater than 2 characters and less than 20 character")
     @ApiModelProperty(value = "Name of training")
-    private String name;
+    private String trainingName;
 
     @NotNull(message = "Short description of training cannot be null")
     @Size(min = 2, max = 400, message = "Short description of training must be equal or grater than 2 characters and less than 20 character")
@@ -34,6 +34,6 @@ public class TrainingDto implements Serializable {
     @ApiModelProperty(value = "Training including exercises series and reps")
     private String training;
 
-    @ApiModelProperty(value = "Name of trainer who created this training")
-    private String createdBy;
+    @ApiModelProperty(value = "Trainer email address who created this training")
+    private String trainerEmail;
 }

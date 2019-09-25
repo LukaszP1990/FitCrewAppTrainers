@@ -1,26 +1,31 @@
 package com.fitcrew.FitCrewAppTrainers.feignclient;
 
+import java.util.List;
+
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.List;
+import com.fitcrew.FitCrewAppTrainers.dto.TrainingDto;
 
 @FeignClient(name = "training-ws")
 public interface FeignTrainingService {
 
-//    @GetMapping("/getAllTrainers")
-//    List<TrainerDto> getListsOfTrainers();
-//
-//    @GetMapping("/getTrainerDetails/firstName/{firstName}/lastName/{lastName}")
-//    TrainerDto getTrainerDetails(@PathVariable String firstName,
-//                                 @PathVariable String lastName);
-//
-//    @PostMapping("/rateTheTrainer")
-//    RatingTrainerDto rateTheTrainer(@RequestBody RatingTrainerDto ratingTrainerDto);
-//
-//    @PostMapping("/sendMessageToTheTrainer")
-//    EmailDto sendMessageToTheTrainer(@RequestBody EmailDto emailDto);
+	@GetMapping("/getTrainerTrainings/{trainerEmail}/trainerEmail")
+	List<TrainingDto> getTrainerTrainings(@PathVariable String trainerEmail);
+
+	@PostMapping("/createTraining")
+	TrainingDto createTraining(@RequestBody TrainingDto trainingDto);
+
+	@DeleteMapping("/deleteTraining/{trainerEmail}/trainerEmail/{trainingName}/trainingName")
+	TrainingDto deleteTraining(@PathVariable String trainerEmail,
+							   @PathVariable String trainingName);
+
+	@PutMapping("/updateTraining/{trainerEmail}/trainerEmail")
+	TrainingDto updateTraining(@RequestBody TrainingDto trainingDto,
+							   @PathVariable String trainingName);
 }

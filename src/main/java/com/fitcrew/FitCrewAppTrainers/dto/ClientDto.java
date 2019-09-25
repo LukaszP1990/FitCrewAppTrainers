@@ -19,14 +19,14 @@ public class ClientDto implements Serializable {
 
     private static final long serialVersionUID = 2118331620631970477L;
 
-    @NotNull(message = "First name of client cannot be null")
-    @Size(min = 2, max = 20, message = "First name of client must be equal or grater than 2 characters and less than 20 character")
-    @ApiModelProperty(value = "First name of client")
+    @NotNull(message = "First trainingName of client cannot be null")
+    @Size(min = 2, max = 20, message = "First trainingName of client must be equal or grater than 2 characters and less than 20 character")
+    @ApiModelProperty(value = "First trainingName of client")
     private String firstName;
 
-    @NotNull(message = "Last name of client cannot be null")
-    @Size(min = 2, max = 20, message = "Last name of client must be equal or grater than 2 characters and less than 20 character")
-    @ApiModelProperty(value = "First name of client")
+    @NotNull(message = "Last trainingName of client cannot be null")
+    @Size(min = 2, max = 20, message = "Last trainingName of client must be equal or grater than 2 characters and less than 20 character")
+    @ApiModelProperty(value = "First trainingName of client")
     private String lastName;
 
     @NotNull(message = "Client email address cannot be null")
