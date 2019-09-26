@@ -131,6 +131,21 @@ public class TrainerCapabilitiesService {
 		}
 	}
 
+	public Either<ErrorMsg, TrainingDto> selectTrainingToSend(String trainerEmail, String trainingName) {
+		TrainerEntity trainerEntity = trainerDao.findByEmail(trainerEmail);
+		if (trainerEmail != null) {
+			log.debug("Trainer who selected training to send to the client {}", trainerEntity);
+			TrainingDto selectedTraining = feignTrainingService.selectTraining(trainerEmail, trainingName);
+
+			return checkEitherResponseForTraining(selectedTraining,
+					"Training selected {}",
+					"No training selected");
+		} else {
+			log.debug("No trainer found");
+			return Either.left(new ErrorMsg("No trainer found"));
+		}
+	}
+
 	private Either<ErrorMsg, TrainingDto> checkEitherResponseForTraining(TrainingDto training,
 																		 String eitherRightMessage,
 																		 String eitherLeftMessage) {

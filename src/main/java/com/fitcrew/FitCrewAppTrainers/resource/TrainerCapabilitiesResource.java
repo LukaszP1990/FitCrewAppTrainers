@@ -48,10 +48,10 @@ class TrainerCapabilitiesResource {
 	@GetMapping(value = "/getClientsWhoGetTraining/{trainerName}/trainerName",
 			consumes = {
 					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE,},
+					MediaType.APPLICATION_XML_VALUE},
 			produces = {
 					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE,})
+					MediaType.APPLICATION_XML_VALUE})
 	public ResponseEntity getClientWhoGetTraining(@PathVariable String trainerName) {
 //        Either<ErrorMsg, List<ClientDto>> clientsWhoGetTrainingFromTrainer =
 //                trainerCapabilitiesService.getClientsWhoGetTrainingFromTrainer(trainerName);
@@ -71,10 +71,10 @@ class TrainerCapabilitiesResource {
 	@GetMapping(value = "/getBasicInformationsAboutTrainer/{trainerEmail}/trainerEmail",
 			consumes = {
 					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE,},
+					MediaType.APPLICATION_XML_VALUE},
 			produces = {
 					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE,})
+					MediaType.APPLICATION_XML_VALUE})
 	public ResponseEntity getBasicInformationsAboutTrainer(@PathVariable String trainerEmail) {
 
 		Either<ErrorMsg, TrainerDto> basicInformationsAboutTrainer =
@@ -94,10 +94,10 @@ class TrainerCapabilitiesResource {
 	@GetMapping(value = "/getTrainerTrainings/{trainerEmail}/trainerEmail",
 			consumes = {
 					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE,},
+					MediaType.APPLICATION_XML_VALUE},
 			produces = {
 					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE,})
+					MediaType.APPLICATION_XML_VALUE})
 	public ResponseEntity getTrainerTrainings(@PathVariable String trainerEmail) {
 
 		Either<ErrorMsg, List<TrainingDto>> trainerTrainings =
@@ -117,10 +117,10 @@ class TrainerCapabilitiesResource {
 	@PostMapping(value = "/createTraining/{trainerEmail}/trainerEmail",
 			consumes = {
 					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE,},
+					MediaType.APPLICATION_XML_VALUE},
 			produces = {
 					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE,})
+					MediaType.APPLICATION_XML_VALUE})
 	public ResponseEntity createTrainingByTrainer(@PathVariable String trainerEmail,
 												  @RequestBody TrainingDto trainingDto) {
 
@@ -141,10 +141,10 @@ class TrainerCapabilitiesResource {
 	@DeleteMapping(value = "/deleteTraining/{trainerEmail}/trainerEmail/{trainingName}/trainingName",
 			consumes = {
 					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE,},
+					MediaType.APPLICATION_XML_VALUE},
 			produces = {
 					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE,})
+					MediaType.APPLICATION_XML_VALUE})
 	public ResponseEntity deleteTraining(@PathVariable String trainerEmail,
 										 @PathVariable String trainingName) {
 
@@ -165,10 +165,10 @@ class TrainerCapabilitiesResource {
 	@DeleteMapping(value = "/updateTraining/{trainerEmail}/trainerEmail",
 			consumes = {
 					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE,},
+					MediaType.APPLICATION_XML_VALUE},
 			produces = {
 					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE,})
+					MediaType.APPLICATION_XML_VALUE})
 	public ResponseEntity updateTraining(@RequestBody TrainingDto trainingDto,
 										 @PathVariable String trainerEmail) {
 
@@ -176,5 +176,29 @@ class TrainerCapabilitiesResource {
 				trainerCapabilitiesService.updateTraining(trainingDto, trainerEmail);
 
 		return ResponseResolver.resolve(trainerTrainings);
+	}
+
+	@ApiOperation(value = "Return training to send to the client")
+	@ApiResponses(value =
+			{
+					@ApiResponse(code = 200, message = "Successful training to send to the client response!"),
+					@ApiResponse(code = 400, message = "400 bad request, rest call is made with some invalid data!"),
+					@ApiResponse(code = 404, message = "404 not found, url is wrong")
+			}
+	)
+	@GetMapping(value = "/selectTrainingToSend/{trainerEmail}/trainerEmail/{trainingName}/trainingName",
+			consumes = {
+					MediaType.APPLICATION_JSON_VALUE,
+					MediaType.APPLICATION_XML_VALUE},
+			produces = {
+					MediaType.APPLICATION_JSON_VALUE,
+					MediaType.APPLICATION_XML_VALUE})
+	public ResponseEntity selectTraningToSend(@PathVariable String trainerEmail,
+											  @PathVariable String trainingName) {
+
+		Either<ErrorMsg, TrainingDto> basicInformationsAboutTrainer =
+				trainerCapabilitiesService.selectTrainingToSend(trainerEmail, trainingName);
+
+		return ResponseResolver.resolve(basicInformationsAboutTrainer);
 	}
 }

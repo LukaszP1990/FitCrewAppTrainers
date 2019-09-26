@@ -28,4 +28,8 @@ public interface FeignTrainingService {
 	@PutMapping("/updateTraining/{trainerEmail}/trainerEmail")
 	TrainingDto updateTraining(@RequestBody TrainingDto trainingDto,
 							   @PathVariable String trainingName);
+
+	@GetMapping("/selectTraining/{trainerEmail}/trainerEmail/{trainingName}/trainingName")
+	TrainingDto selectTraining(@PathVariable String trainerEmail,
+							   @PathVariable String trainingName);
 }
