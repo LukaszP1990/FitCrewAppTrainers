@@ -22,6 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 public class TrainerSearchService {
 
 	private final TrainerDao trainerDao;
+	private String SUCCESSFULLY_MAPPING = "Trainer object mapped successfully {}";
+	private String NOT_SUCCESSFULLY_MAPPING = "Trainer not mapped successfully";
 
 	public TrainerSearchService(TrainerDao trainerDao) {
 		this.trainerDao = trainerDao;
@@ -38,11 +40,30 @@ public class TrainerSearchService {
 			List<TrainerDto> trainerToReturn = mapTrainerEntityToDto(modelMapper, trainerEntitiesList);
 
 			return checkEitherResponseForTrainers(trainerToReturn,
-					"Trainer object mapped successfully and send to trainer web service {}",
-					"Trainer not mapped successfully");
+					SUCCESSFULLY_MAPPING,
+					NOT_SUCCESSFULLY_MAPPING);
 
 		} else {
-			return Either.left(new ErrorMsg("No trainers sorted"));
+			return Either.left(new ErrorMsg("No trainers found"));
+		}
+	}
+
+	public Either<ErrorMsg, TrainerDto> getTrainer(String trainerEmail) {
+
+		ModelMapper modelMapper = prepareModelMapperForExistingTraining();
+		TrainerEntity trainerEntity = trainerDao.findByEmail(trainerEmail);
+
+		if (trainerEntity != null) {
+
+			log.debug("Trainer found: {}", trainerEntity);
+			TrainerDto trainerToReturn = modelMapper.map(trainerEntity, TrainerDto.class);
+
+			return checkEitherResponseForTrainer(trainerToReturn,
+					SUCCESSFULLY_MAPPING,
+					NOT_SUCCESSFULLY_MAPPING);
+
+		} else {
+			return Either.left(new ErrorMsg("No trainer found"));
 		}
 	}
 
@@ -66,9 +87,21 @@ public class TrainerSearchService {
 		return modelMapper;
 	}
 
-	private Either<ErrorMsg, List<TrainerDto>> checkEitherResponseForTrainers(List<TrainerDto> trainer,
+	private Either<ErrorMsg, List<TrainerDto>> checkEitherResponseForTrainers(List<TrainerDto> trainers,
 																			  String eitherRightMessage,
 																			  String eitherLeftMessage) {
+		if (trainers != null) {
+			log.debug(eitherRightMessage, trainers);
+			return Either.right(trainers);
+		} else {
+			log.debug(eitherLeftMessage);
+			return Either.left(new ErrorMsg(eitherLeftMessage));
+		}
+	}
+
+	private Either<ErrorMsg, TrainerDto> checkEitherResponseForTrainer(TrainerDto trainer,
+																	   String eitherRightMessage,
+																	   String eitherLeftMessage) {
 		if (trainer != null) {
 			log.debug(eitherRightMessage, trainer);
 			return Either.right(trainer);
