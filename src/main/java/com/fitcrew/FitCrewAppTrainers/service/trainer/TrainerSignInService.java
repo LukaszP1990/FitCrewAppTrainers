@@ -1,4 +1,4 @@
-package com.fitcrew.FitCrewAppTrainers.service;
+package com.fitcrew.FitCrewAppTrainers.service.trainer;
 
 import java.util.ArrayList;
 

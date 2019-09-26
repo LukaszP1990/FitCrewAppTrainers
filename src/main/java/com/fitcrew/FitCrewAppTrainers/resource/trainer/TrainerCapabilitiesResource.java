@@ -1,4 +1,4 @@
-package com.fitcrew.FitCrewAppTrainers.resource;
+package com.fitcrew.FitCrewAppTrainers.resource.trainer;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import com.fitcrew.FitCrewAppTrainers.dto.TrainerDto;
 import com.fitcrew.FitCrewAppTrainers.dto.TrainingDto;
 import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.fitcrew.FitCrewAppTrainers.resolver.ResponseResolver;
-import com.fitcrew.FitCrewAppTrainers.service.TrainerCapabilitiesService;
+import com.fitcrew.FitCrewAppTrainers.service.trainer.TrainerCapabilitiesService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

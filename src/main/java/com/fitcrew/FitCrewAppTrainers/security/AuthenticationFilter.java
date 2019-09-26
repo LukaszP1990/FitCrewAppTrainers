@@ -21,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fitcrew.FitCrewAppTrainers.dto.LoginDto;
 import com.fitcrew.FitCrewAppTrainers.dto.TrainerDto;
-import com.fitcrew.FitCrewAppTrainers.service.TrainerSignInService;
+import com.fitcrew.FitCrewAppTrainers.service.trainer.TrainerSignInService;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

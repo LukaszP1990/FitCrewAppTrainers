@@ -6,6 +6,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 @Table(name = "Trainer")
@@ -21,7 +22,8 @@ public class TrainerEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @Column(name = "trainerEntityId")
+    private long trainerEntityId;
 
     @Column(nullable = false, length = 20)
     private String firstName;
@@ -51,4 +53,8 @@ public class TrainerEntity implements Serializable {
 
     @Column(nullable = false, unique = true)
     private String encryptedPassword;
+
+    @OneToMany(mappedBy = "ratingTrainerEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<RatingTrainerEntity> ratingTrainerEntity;
+
 }

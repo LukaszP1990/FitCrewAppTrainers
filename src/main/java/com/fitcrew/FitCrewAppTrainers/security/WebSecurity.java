@@ -12,7 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import com.fitcrew.FitCrewAppTrainers.service.TrainerSignInService;
+import com.fitcrew.FitCrewAppTrainers.service.trainer.TrainerSignInService;
 
 @Configuration
 @EnableWebSecurity

@@ -1,4 +1,4 @@
-package com.fitcrew.FitCrewAppTrainers.resource;
+package com.fitcrew.FitCrewAppTrainers.resource.trainer;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fitcrew.FitCrewAppTrainers.dto.TrainerDto;
 import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.fitcrew.FitCrewAppTrainers.resolver.ResponseResolver;
-import com.fitcrew.FitCrewAppTrainers.service.TrainerCreateService;
+import com.fitcrew.FitCrewAppTrainers.service.trainer.TrainerCreateService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -50,6 +50,5 @@ public class TrainerCreateResource {
 		Either<ErrorMsg, TrainerDto> trainerToSave = trainerCreateService.createTrainer(trainerDto);
 
 		return ResponseResolver.resolve(trainerToSave);
-
 	}
 }

@@ -1,4 +1,4 @@
-package com.fitcrew.FitCrewAppTrainers.service;
+package com.fitcrew.FitCrewAppTrainers.service.trainer;
 
 import java.util.UUID;
 
@@ -49,7 +49,7 @@ public class TrainerCreateService {
 
 	private PropertyMap<TrainerDto, TrainerEntity> skipModifiedFieldsMap = new PropertyMap<TrainerDto, TrainerEntity>() {
 		protected void configure() {
-			skip().setId(trainerId);
+			skip().setTrainerEntityId(trainerId);
 			trainerId++;
 		}
 	};

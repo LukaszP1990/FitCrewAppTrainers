@@ -1,4 +1,4 @@
-package com.fitcrew.FitCrewAppTrainers.service;
+package com.fitcrew.FitCrewAppTrainers.service.trainer;
 
 import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
 import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
