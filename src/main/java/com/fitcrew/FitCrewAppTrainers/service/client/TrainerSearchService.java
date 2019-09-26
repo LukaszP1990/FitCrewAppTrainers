@@ -23,7 +23,7 @@ public class TrainerSearchService {
 
 	private final TrainerDao trainerDao;
 	private String SUCCESSFULLY_MAPPING = "Trainer object mapped successfully {}";
-	private String NOT_SUCCESSFULLY_MAPPING = "Trainer not mapped successfully";
+	private String NOT_SUCCESSFULLY_MAPPING = "Trainer object not mapped successfully";
 
 	public TrainerSearchService(TrainerDao trainerDao) {
 		this.trainerDao = trainerDao;

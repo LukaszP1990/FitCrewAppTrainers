@@ -85,7 +85,8 @@ public class TrainerCapabilitiesService {
 		}
 	}
 
-	public Either<ErrorMsg, TrainingDto> createTraining(TrainingDto trainingDto, String trainerEmail) {
+	public Either<ErrorMsg, TrainingDto> createTraining(TrainingDto trainingDto,
+														String trainerEmail) {
 
 		TrainerEntity trainerEntity = trainerDao.findByEmail(trainerEmail);
 
@@ -103,7 +104,8 @@ public class TrainerCapabilitiesService {
 
 	}
 
-	public Either<ErrorMsg, TrainingDto> deleteTraining(String trainerEmail, String trainingName) {
+	public Either<ErrorMsg, TrainingDto> deleteTraining(String trainerEmail,
+														String trainingName) {
 
 		TrainingDto deletedTraining = feignTrainingService.deleteTraining(trainerEmail, trainingName);
 		if (deletedTraining != null) {
@@ -115,7 +117,8 @@ public class TrainerCapabilitiesService {
 		}
 	}
 
-	public Either<ErrorMsg, TrainingDto> updateTraining(TrainingDto trainingDto, String trainerEmail) {
+	public Either<ErrorMsg, TrainingDto> updateTraining(TrainingDto trainingDto,
+														String trainerEmail) {
 
 		TrainerEntity trainerEntity = trainerDao.findByEmail(trainerEmail);
 		if (trainerEmail != null) {
@@ -131,7 +134,8 @@ public class TrainerCapabilitiesService {
 		}
 	}
 
-	public Either<ErrorMsg, TrainingDto> selectTrainingToSend(String trainerEmail, String trainingName) {
+	public Either<ErrorMsg, TrainingDto> selectTrainingToSend(String trainerEmail,
+															  String trainingName) {
 		TrainerEntity trainerEntity = trainerDao.findByEmail(trainerEmail);
 		if (trainerEmail != null) {
 			log.debug("Trainer who selected training to send to the client {}", trainerEntity);

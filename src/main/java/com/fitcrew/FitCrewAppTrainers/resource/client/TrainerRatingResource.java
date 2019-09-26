@@ -4,6 +4,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -66,6 +67,27 @@ class TrainerRatingResource {
 					MediaType.APPLICATION_JSON_VALUE,
 					MediaType.APPLICATION_XML_VALUE,})
 	public ResponseEntity getTrainersRanking() {
+
+		return ResponseResolver.resolve(trainerRatingService.getRankingOfTrainers());
+	}
+
+	@ApiOperation(value = "Return the rated trainer by the client")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Successful rated trainer by the client response!"),
+			@ApiResponse(code = 400, message = "400 bad request, rest call is made with some invalid data!"),
+			@ApiResponse(code = 404, message = "404 not found, url is wrong")
+	})
+	@PostMapping(value = "/rateTheTrainer/{trainerEmail}/trainerEmail/{ratingForTrainer}/ratingForTrainer",
+			consumes = {
+					MediaType.APPLICATION_JSON_VALUE,
+					MediaType.APPLICATION_XML_VALUE,},
+			produces = {
+					MediaType.APPLICATION_JSON_VALUE,
+					MediaType.APPLICATION_XML_VALUE,})
+	public ResponseEntity rateTheTrainer(@PathVariable String trainerEmail,
+										 @PathVariable String ratingForTrainer) {
+
+		trainerRatingService.setRateForTheTrainer(trainerEmail, ratingForTrainer);
 
 		return ResponseResolver.resolve(trainerRatingService.getRankingOfTrainers());
 	}

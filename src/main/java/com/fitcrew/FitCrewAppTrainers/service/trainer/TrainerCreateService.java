@@ -24,7 +24,8 @@ public class TrainerCreateService {
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 	private static int trainerId = 1;
 
-	public TrainerCreateService(TrainerDao trainerDao, BCryptPasswordEncoder bCryptPasswordEncoder) {
+	public TrainerCreateService(TrainerDao trainerDao,
+								BCryptPasswordEncoder bCryptPasswordEncoder) {
 		this.trainerDao = trainerDao;
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 	}
@@ -63,7 +64,8 @@ public class TrainerCreateService {
 		return modelMapper;
 	}
 
-	private Either<ErrorMsg, TrainerDto> checkIfTrainerWasSaved(TrainerEntity savedTrainer, ModelMapper modelMapper) {
+	private Either<ErrorMsg, TrainerDto> checkIfTrainerWasSaved(TrainerEntity savedTrainer,
+																ModelMapper modelMapper) {
 		if (savedTrainer != null) {
 
 			log.debug("Trainer saved successfully: {}", savedTrainer);
