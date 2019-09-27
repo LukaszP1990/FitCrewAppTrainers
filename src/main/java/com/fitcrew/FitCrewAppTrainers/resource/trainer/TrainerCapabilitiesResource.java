@@ -31,174 +31,197 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/trainer")
 class TrainerCapabilitiesResource {
 
-	private final TrainerCapabilitiesService trainerCapabilitiesService;
+    private final TrainerCapabilitiesService trainerCapabilitiesService;
 
-	public TrainerCapabilitiesResource(TrainerCapabilitiesService trainerCapabilitiesService) {
-		this.trainerCapabilitiesService = trainerCapabilitiesService;
-	}
+    public TrainerCapabilitiesResource(TrainerCapabilitiesService trainerCapabilitiesService) {
+        this.trainerCapabilitiesService = trainerCapabilitiesService;
+    }
 
-	@ApiOperation(value = "Return all clients who bought training from trainer")
-	@ApiResponses(value =
-			{
-					@ApiResponse(code = 200, message = "Successful all clients who bought training from trainer response!"),
-					@ApiResponse(code = 400, message = "400 bad request, rest call is made with some invalid data!"),
-					@ApiResponse(code = 404, message = "404 not found, url is wrong")
-			}
-	)
-	@GetMapping(value = "/getClientsWhoGetTraining/{trainerName}/trainerName",
-			consumes = {
-					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE},
-			produces = {
-					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE})
-	public ResponseEntity getClientWhoGetTraining(@PathVariable String trainerName) {
+    @ApiOperation(value = "Return all clients who bought training from trainer")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(code = 200, message = "Successful all clients who bought training from trainer response!"),
+                    @ApiResponse(code = 400, message = "400 bad request, rest call is made with some invalid data!"),
+                    @ApiResponse(code = 404, message = "404 not found, url is wrong")
+            }
+    )
+    @GetMapping(value = "/getClientsWhoGetTraining/{trainerName}/trainerName",
+            consumes = {
+                    MediaType.APPLICATION_JSON_VALUE,
+                    MediaType.APPLICATION_XML_VALUE},
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE,
+                    MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity getClientWhoGetTraining(@PathVariable String trainerName) {
 //        Either<ErrorMsg, List<ClientDto>> clientsWhoGetTrainingFromTrainer =
 //                trainerCapabilitiesService.getClientsWhoGetTrainingFromTrainer(trainerName);
 //
 //        return ResponseResolver.resolve(clientsWhoGetTrainingFromTrainer);
-		return null;
-	}
+        return null;
+    }
 
-	@ApiOperation(value = "Return basic informations about trainer")
-	@ApiResponses(value =
-			{
-					@ApiResponse(code = 200, message = "Successful basic informations about trainer response!"),
-					@ApiResponse(code = 400, message = "400 bad request, rest call is made with some invalid data!"),
-					@ApiResponse(code = 404, message = "404 not found, url is wrong")
-			}
-	)
-	@GetMapping(value = "/getBasicInformationsAboutTrainer/{trainerEmail}/trainerEmail",
-			consumes = {
-					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE},
-			produces = {
-					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE})
-	public ResponseEntity getBasicInformationsAboutTrainer(@PathVariable String trainerEmail) {
+    @ApiOperation(value = "Return basic informations about trainer")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(code = 200, message = "Successful basic informations about trainer response!"),
+                    @ApiResponse(code = 400, message = "400 bad request, rest call is made with some invalid data!"),
+                    @ApiResponse(code = 404, message = "404 not found, url is wrong")
+            }
+    )
+    @GetMapping(value = "/getBasicInformationsAboutTrainer/{trainerEmail}/trainerEmail",
+            consumes = {
+                    MediaType.APPLICATION_JSON_VALUE,
+                    MediaType.APPLICATION_XML_VALUE},
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE,
+                    MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity getBasicInformationsAboutTrainer(@PathVariable String trainerEmail) {
 
-		Either<ErrorMsg, TrainerDto> basicInformationsAboutTrainer =
-				trainerCapabilitiesService.getBasicInformationsAboutTrainer(trainerEmail);
+        Either<ErrorMsg, TrainerDto> basicInformationsAboutTrainer =
+                trainerCapabilitiesService.getBasicInformationsAboutTrainer(trainerEmail);
 
-		return ResponseResolver.resolve(basicInformationsAboutTrainer);
-	}
+        return ResponseResolver.resolve(basicInformationsAboutTrainer);
+    }
 
-	@ApiOperation(value = "Return all trainings from trainer")
-	@ApiResponses(value =
-			{
-					@ApiResponse(code = 200, message = "Successful all trainings from trainer response!"),
-					@ApiResponse(code = 400, message = "400 bad request, rest call is made with some invalid data!"),
-					@ApiResponse(code = 404, message = "404 not found, url is wrong")
-			}
-	)
-	@GetMapping(value = "/getTrainerTrainings/{trainerEmail}/trainerEmail",
-			consumes = {
-					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE},
-			produces = {
-					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE})
-	public ResponseEntity getTrainerTrainings(@PathVariable String trainerEmail) {
+    @ApiOperation(value = "Return all trainings from trainer")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(code = 200, message = "Successful all trainings from trainer response!"),
+                    @ApiResponse(code = 400, message = "400 bad request, rest call is made with some invalid data!"),
+                    @ApiResponse(code = 404, message = "404 not found, url is wrong")
+            }
+    )
+    @GetMapping(value = "/getTrainerTrainings/{trainerEmail}/trainerEmail",
+            consumes = {
+                    MediaType.APPLICATION_JSON_VALUE,
+                    MediaType.APPLICATION_XML_VALUE},
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE,
+                    MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity getTrainerTrainings(@PathVariable String trainerEmail) {
 
-		Either<ErrorMsg, List<TrainingDto>> trainerTrainings =
-				trainerCapabilitiesService.getTrainerTrainings(trainerEmail);
+        Either<ErrorMsg, List<TrainingDto>> trainerTrainings =
+                trainerCapabilitiesService.getTrainerTrainings(trainerEmail);
 
-		return ResponseResolver.resolve(trainerTrainings);
-	}
+        return ResponseResolver.resolve(trainerTrainings);
+    }
 
-	@ApiOperation(value = "Training created by trainer")
-	@ApiResponses(value =
-			{
-					@ApiResponse(code = 200, message = "Successful training created by trainer response!"),
-					@ApiResponse(code = 400, message = "400 bad request, rest call is made with some invalid data!"),
-					@ApiResponse(code = 404, message = "404 not found, url is wrong")
-			}
-	)
-	@PostMapping(value = "/createTraining/{trainerEmail}/trainerEmail",
-			consumes = {
-					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE},
-			produces = {
-					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE})
-	public ResponseEntity createTrainingByTrainer(@PathVariable String trainerEmail,
-												  @RequestBody TrainingDto trainingDto) {
+    @ApiOperation(value = "Training created by trainer")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(code = 200, message = "Successful training created by trainer response!"),
+                    @ApiResponse(code = 400, message = "400 bad request, rest call is made with some invalid data!"),
+                    @ApiResponse(code = 404, message = "404 not found, url is wrong")
+            }
+    )
+    @PostMapping(value = "/createTraining/{trainerEmail}/trainerEmail",
+            consumes = {
+                    MediaType.APPLICATION_JSON_VALUE,
+                    MediaType.APPLICATION_XML_VALUE},
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE,
+                    MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity createTrainingByTrainer(@PathVariable String trainerEmail,
+                                                  @RequestBody TrainingDto trainingDto) {
 
-		Either<ErrorMsg, TrainingDto> trainerTrainings =
-				trainerCapabilitiesService.createTraining(trainingDto, trainerEmail);
+        Either<ErrorMsg, TrainingDto> trainerTrainings =
+                trainerCapabilitiesService.createTraining(trainingDto, trainerEmail);
 
-		return ResponseResolver.resolve(trainerTrainings);
-	}
+        return ResponseResolver.resolve(trainerTrainings);
+    }
 
-	@ApiOperation(value = "Training deleted by trainer")
-	@ApiResponses(value =
-			{
-					@ApiResponse(code = 200, message = "Successful training deleted by trainer response!"),
-					@ApiResponse(code = 400, message = "400 bad request, rest call is made with some invalid data!"),
-					@ApiResponse(code = 404, message = "404 not found, url is wrong")
-			}
-	)
-	@DeleteMapping(value = "/deleteTraining/{trainerEmail}/trainerEmail/{trainingName}/trainingName",
-			consumes = {
-					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE},
-			produces = {
-					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE})
-	public ResponseEntity deleteTraining(@PathVariable String trainerEmail,
-										 @PathVariable String trainingName) {
+    @ApiOperation(value = "Training deleted by trainer")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(code = 200, message = "Successful training deleted by trainer response!"),
+                    @ApiResponse(code = 400, message = "400 bad request, rest call is made with some invalid data!"),
+                    @ApiResponse(code = 404, message = "404 not found, url is wrong")
+            }
+    )
+    @DeleteMapping(value = "/deleteTraining/{trainerEmail}/trainerEmail/{trainingName}/trainingName",
+            consumes = {
+                    MediaType.APPLICATION_JSON_VALUE,
+                    MediaType.APPLICATION_XML_VALUE},
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE,
+                    MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity deleteTraining(@PathVariable String trainerEmail,
+                                         @PathVariable String trainingName) {
 
-		Either<ErrorMsg, TrainingDto> trainerTrainings =
-				trainerCapabilitiesService.deleteTraining(trainerEmail, trainingName);
+        Either<ErrorMsg, TrainingDto> trainerTrainings =
+                trainerCapabilitiesService.deleteTraining(trainerEmail, trainingName);
 
-		return ResponseResolver.resolve(trainerTrainings);
-	}
+        return ResponseResolver.resolve(trainerTrainings);
+    }
 
-	@ApiOperation(value = "Training updated by trainer")
-	@ApiResponses(value =
-			{
-					@ApiResponse(code = 200, message = "Successful training updated by trainer response!"),
-					@ApiResponse(code = 400, message = "400 bad request, rest call is made with some invalid data!"),
-					@ApiResponse(code = 404, message = "404 not found, url is wrong")
-			}
-	)
-	@DeleteMapping(value = "/updateTraining/{trainerEmail}/trainerEmail",
-			consumes = {
-					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE},
-			produces = {
-					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE})
-	public ResponseEntity updateTraining(@RequestBody TrainingDto trainingDto,
-										 @PathVariable String trainerEmail) {
+    @ApiOperation(value = "Training updated by trainer")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(code = 200, message = "Successful training updated by trainer response!"),
+                    @ApiResponse(code = 400, message = "400 bad request, rest call is made with some invalid data!"),
+                    @ApiResponse(code = 404, message = "404 not found, url is wrong")
+            }
+    )
+    @DeleteMapping(value = "/updateTraining/{trainerEmail}/trainerEmail",
+            consumes = {
+                    MediaType.APPLICATION_JSON_VALUE,
+                    MediaType.APPLICATION_XML_VALUE},
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE,
+                    MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity updateTraining(@RequestBody TrainingDto trainingDto,
+                                         @PathVariable String trainerEmail) {
 
-		Either<ErrorMsg, TrainingDto> trainerTrainings =
-				trainerCapabilitiesService.updateTraining(trainingDto, trainerEmail);
+        Either<ErrorMsg, TrainingDto> trainerTrainings =
+                trainerCapabilitiesService.updateTraining(trainingDto, trainerEmail);
 
-		return ResponseResolver.resolve(trainerTrainings);
-	}
+        return ResponseResolver.resolve(trainerTrainings);
+    }
 
-	@ApiOperation(value = "Return training to send to the client")
-	@ApiResponses(value =
-			{
-					@ApiResponse(code = 200, message = "Successful training to send to the client response!"),
-					@ApiResponse(code = 400, message = "400 bad request, rest call is made with some invalid data!"),
-					@ApiResponse(code = 404, message = "404 not found, url is wrong")
-			}
-	)
-	@GetMapping(value = "/selectTrainingToSend/{trainerEmail}/trainerEmail/{trainingName}/trainingName",
-			consumes = {
-					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE},
-			produces = {
-					MediaType.APPLICATION_JSON_VALUE,
-					MediaType.APPLICATION_XML_VALUE})
-	public ResponseEntity selectTraningToSend(@PathVariable String trainerEmail,
-											  @PathVariable String trainingName) {
+    @ApiOperation(value = "Return training to send to the client")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(code = 200, message = "Successful training to send to the client response!"),
+                    @ApiResponse(code = 400, message = "400 bad request, rest call is made with some invalid data!"),
+                    @ApiResponse(code = 404, message = "404 not found, url is wrong")
+            }
+    )
+    @GetMapping(value = "/selectTrainingToSend/{trainerEmail}/trainerEmail/{trainingName}/trainingName",
+            consumes = {
+                    MediaType.APPLICATION_JSON_VALUE,
+                    MediaType.APPLICATION_XML_VALUE},
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE,
+                    MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity selectTrainingToSend(@PathVariable String trainerEmail,
+                                               @PathVariable String trainingName) {
 
-		Either<ErrorMsg, TrainingDto> basicInformationsAboutTrainer =
-				trainerCapabilitiesService.selectTrainingToSend(trainerEmail, trainingName);
+        Either<ErrorMsg, TrainingDto> basicInformationsAboutTrainer =
+                trainerCapabilitiesService.selectTrainingToSend(trainerEmail, trainingName);
 
-		return ResponseResolver.resolve(basicInformationsAboutTrainer);
-	}
+        return ResponseResolver.resolve(basicInformationsAboutTrainer);
+    }
+
+    @ApiOperation(value = "Return clients who has bought training")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(code = 200, message = "Successful training to send to the client response!"),
+                    @ApiResponse(code = 400, message = "400 bad request, rest call is made with some invalid data!"),
+                    @ApiResponse(code = 404, message = "404 not found, url is wrong")
+            }
+    )
+    @GetMapping(value = "/clientsWhoBoughtTraining/{trainerEmail}/trainerEmail",
+            consumes = {
+                    MediaType.APPLICATION_JSON_VALUE,
+                    MediaType.APPLICATION_XML_VALUE},
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE,
+                    MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity clientsWhoBoughtTraining(@PathVariable String trainerEmail) {
+
+        Either<ErrorMsg, List<String>> clients =
+                trainerCapabilitiesService.getClientsWhoGetTrainingFromTrainer(trainerEmail);
+
+        return ResponseResolver.resolve(clients);
+    }
 }
