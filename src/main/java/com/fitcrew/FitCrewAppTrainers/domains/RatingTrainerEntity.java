@@ -1,23 +1,12 @@
 package com.fitcrew.FitCrewAppTrainers.domains;
 
+import lombok.*;
+
+import javax.persistence.*;
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-
-import io.swagger.annotations.ApiModel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-
-@ApiModel(value = "Rating Trainer")
+@Entity
+@Table(name = "Rating")
 @Getter
 @Setter
 @Builder

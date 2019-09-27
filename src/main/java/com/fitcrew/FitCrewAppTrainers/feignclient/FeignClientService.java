@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@FeignClient(name = "client-ws")
+@FeignClient(name = "client-ws", path = "/client")
 public interface FeignClientService {
 
-    @GetMapping("/getClientsWhoGetTraining/{trainerName}/trainerName")
+    @GetMapping(value = "/getClientsWhoGetTraining/{trainerName}/trainerName")
     List<ClientDto> getClientsWhoGetTrainingFromTrainer(@PathVariable String trainerName);
 }

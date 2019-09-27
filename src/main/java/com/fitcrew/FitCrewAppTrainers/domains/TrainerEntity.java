@@ -42,7 +42,7 @@ public class TrainerEntity implements Serializable {
     @Pattern(regexp = "[0-9]{9}")
     private String phone;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String placeInTheRanking;
 
     @Column(nullable = false, length = 200)

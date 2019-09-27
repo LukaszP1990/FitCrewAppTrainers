@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.fitcrew.FitCrewAppTrainers.dto.TrainingDto;
 
-@FeignClient(name = "training-ws")
+@FeignClient(name = "training-ws", path = "/training")
 public interface FeignTrainingService {
 
 	@GetMapping("/getTrainerTrainings/{trainerEmail}/trainerEmail")
