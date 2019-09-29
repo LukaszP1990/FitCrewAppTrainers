@@ -35,10 +35,10 @@ class TrainerAdminResource {
     @GetMapping(value = "/getTrainers",
             consumes = {
                     MediaType.APPLICATION_JSON_VALUE,
-                    MediaType.APPLICATION_XML_VALUE,},
+                    MediaType.APPLICATION_XML_VALUE},
             produces = {
                     MediaType.APPLICATION_JSON_VALUE,
-                    MediaType.APPLICATION_XML_VALUE,})
+                    MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity getTrainers() {
         return ResponseResolver.resolve(trainerAdminService.getTrainers());
     }
@@ -54,10 +54,10 @@ class TrainerAdminResource {
     @DeleteMapping(value = "/deleteTrainer/{trainerEmail}/trainerEmail",
             consumes = {
                     MediaType.APPLICATION_JSON_VALUE,
-                    MediaType.APPLICATION_XML_VALUE,},
+                    MediaType.APPLICATION_XML_VALUE},
             produces = {
                     MediaType.APPLICATION_JSON_VALUE,
-                    MediaType.APPLICATION_XML_VALUE,})
+                    MediaType.APPLICATION_XML_VALUE})
     private ResponseEntity deleteTrainer(@PathVariable String trainerEmail) {
 
         return ResponseResolver.resolve(trainerAdminService.deleteTrainer(trainerEmail));
@@ -74,16 +74,35 @@ class TrainerAdminResource {
     @PutMapping(value = "/updateTrainer/{trainerEmail}/trainerEmail",
             consumes = {
                     MediaType.APPLICATION_JSON_VALUE,
-                    MediaType.APPLICATION_XML_VALUE,},
+                    MediaType.APPLICATION_XML_VALUE},
             produces = {
                     MediaType.APPLICATION_JSON_VALUE,
-                    MediaType.APPLICATION_XML_VALUE,})
+                    MediaType.APPLICATION_XML_VALUE})
     private ResponseEntity updateTrainer(@RequestBody TrainerDto trainerDto,
-                                        @PathVariable String trainerEmail) {
+                                         @PathVariable String trainerEmail) {
 
         Either<ErrorMsg, TrainerDto> updatedTrainer =
                 trainerAdminService.updateTrainer(trainerDto, trainerEmail);
         return ResponseResolver.resolve(updatedTrainer);
     }
+
+    @ApiOperation(value = "Return single trainer")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful get single trainer response!"),
+            @ApiResponse(code = 400, message = "400 bad request, rest call is made with some invalid data!"),
+            @ApiResponse(code = 404, message = "404 not found, url is wrong")
+    })
+    @GetMapping(value = "/getTrainer/{trainerEmail}/trainerEmail",
+            consumes = {
+                    MediaType.APPLICATION_JSON_VALUE,
+                    MediaType.APPLICATION_XML_VALUE},
+            produces = {
+                    MediaType.APPLICATION_JSON_VALUE,
+                    MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity getTrainer(@PathVariable String trainerEmail) {
+
+        return ResponseResolver.resolve(trainerAdminService.getTrainer(trainerEmail));
+    }
+
 }
 

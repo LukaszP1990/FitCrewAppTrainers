@@ -3,6 +3,7 @@ package com.fitcrew.FitCrewAppTrainers.service.admin;
 import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
 import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
 import com.fitcrew.FitCrewAppTrainers.dto.TrainerDto;
+import com.fitcrew.FitCrewAppTrainers.dto.TrainingDto;
 import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.google.common.collect.Lists;
 import io.vavr.control.Either;
@@ -44,10 +45,10 @@ public class TrainerAdminService {
 
     public Either<ErrorMsg, TrainerDto> deleteTrainer(String trainerEmail) {
 
-        ModelMapper modelMapper = prepareModelMapperForExistingTrainer();
         TrainerEntity trainerToDelete = trainerDao.findByEmail(trainerEmail);
 
         if (trainerToDelete != null) {
+            ModelMapper modelMapper = prepareModelMapperForExistingTrainer();
             log.debug("Trainer to delete {}", trainerToDelete);
             trainerDao.delete(trainerToDelete);
             TrainerDto trainerToReturn = modelMapper.map(trainerToDelete, TrainerDto.class);
@@ -73,6 +74,25 @@ public class TrainerAdminService {
         } else {
             log.debug("No trainer updated");
             return Either.left(new ErrorMsg("No client updated"));
+        }
+    }
+
+    public Either<ErrorMsg, TrainerDto> getTrainer(String trainerEmail) {
+
+        TrainerEntity trainerEntity = trainerDao.findByEmail(trainerEmail);
+
+        if (trainerEntity != null) {
+            ModelMapper modelMapper = prepareModelMapperForExistingTrainer();
+            log.debug("Trainer to return {}", trainerEntity);
+
+            TrainerDto trainer = modelMapper.map(trainerEntity, TrainerDto.class);
+
+            return checkEitherResponseForTrainer(
+                    trainer,
+                    SUCCESSFULLY_MAPPING,
+                    NOT_SUCCESSFULLY_MAPPING);
+        } else {
+            return Either.left(new ErrorMsg("No training found"));
         }
     }
 
