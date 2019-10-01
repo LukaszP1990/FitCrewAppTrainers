@@ -119,8 +119,9 @@ public class TrainerRatingService {
     private LinkedHashMap<String, Double> prepareSortedTrainersByRating(ArrayList<TrainerEntity> trainerEntitiesList) {
         Map<String, Double> trainerNameAndRatingMap = trainerEntitiesList.stream()
                 .collect(Collectors.toMap(
-                        trainerEntity -> trainerEntity.getLastName() + trainerEntity.getFirstName(),
-                        this::calculateAverageRating
+                        trainerEntity -> trainerEntity.getFirstName() + " " + trainerEntity.getLastName(),
+                        this::calculateAverageRating,
+                        (oldValue, newValue) -> oldValue
                 ));
 
         return trainerNameAndRatingMap.entrySet().stream()

@@ -73,7 +73,7 @@ public class TrainerAdminService {
             return prepareTrainingUpdate(trainerDto, trainerToUpdate);
         } else {
             log.debug("No trainer updated");
-            return Either.left(new ErrorMsg("No client updated"));
+            return Either.left(new ErrorMsg("No trainer updated"));
         }
     }
 
@@ -92,7 +92,7 @@ public class TrainerAdminService {
                     SUCCESSFULLY_MAPPING,
                     NOT_SUCCESSFULLY_MAPPING);
         } else {
-            return Either.left(new ErrorMsg("No training found"));
+            return Either.left(new ErrorMsg("No trainer found"));
         }
     }
 

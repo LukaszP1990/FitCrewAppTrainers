@@ -35,7 +35,8 @@ public class TrainerCapabilitiesService {
 
         if (trainerTrainings.isRight()) {
             List<String> allTrainerTrainings = getAllTrainings(trainerTrainings);
-            return checkEitherResponseForTrainers(allTrainerTrainings);
+            Either<ErrorMsg, List<String>> lists = checkEitherResponseForTrainers(allTrainerTrainings);
+            return lists;
         } else {
             return Either.left(new ErrorMsg("No trainings found"));
         }
