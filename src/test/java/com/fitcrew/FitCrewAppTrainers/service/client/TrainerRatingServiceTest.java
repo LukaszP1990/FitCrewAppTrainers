@@ -10,6 +10,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -21,6 +23,7 @@ import com.fitcrew.FitCrewAppTrainers.dao.RatingTrainerDao;
 import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
 import com.fitcrew.FitCrewAppTrainers.domains.RatingTrainerEntity;
 import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
+import com.fitcrew.FitCrewAppTrainers.dto.RatingTrainerDto;
 import com.fitcrew.FitCrewAppTrainers.dto.TrainerDto;
 import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.fitcrew.FitCrewAppTrainers.util.TrainerResourceMockUtil;
@@ -42,6 +45,12 @@ class TrainerRatingServiceTest {
 			"firstName lastName1");
 	private final static String TRAINER_ENTITY_EMAIL = "mockedTrainer@gmail.com";
 
+	@Captor
+	private ArgumentCaptor<String> stringArgumentCaptor;
+
+	@Captor
+	private ArgumentCaptor<RatingTrainerEntity> ratingTrainerEntityArgumentCaptor;
+
 	@Mock
 	private TrainerDao trainerDao;
 
@@ -60,14 +69,17 @@ class TrainerRatingServiceTest {
 		Either<ErrorMsg, LinkedHashMap<String, Double>> rankingOfTrainers =
 				trainerRatingService.getRankingOfTrainers();
 
-		assertNotNull(rankingOfTrainers);
+		verify(trainerDao, times(1)).findAll();
 
+		assertNotNull(rankingOfTrainers);
 		assertAll(() -> {
 					assertTrue(rankingOfTrainers.isRight());
 					ArrayList<Double> ratingsList =
 							Lists.newArrayList(rankingOfTrainers.get().values());
 					ArrayList<String> trainerNamesList = Lists.newArrayList(rankingOfTrainers.get().keySet());
 
+					assertFalse(ratingsList.isEmpty());
+					assertFalse(trainerNamesList.isEmpty());
 					assertTrue(
 							checkRatingsIfEqual(
 									mockedRatingList,
@@ -104,13 +116,15 @@ class TrainerRatingServiceTest {
 		Either<ErrorMsg, Double> averageRatingOfTrainer =
 				trainerRatingService.getAverageRatingOfTrainer(TRAINER_ENTITY_EMAIL);
 
-		assertNotNull(averageRatingOfTrainer);
+		verifyFindEntityByEmail();
 
+		assertNotNull(averageRatingOfTrainer);
 		assertAll(() -> {
 			assertTrue(averageRatingOfTrainer.isRight());
 			assertEquals(new Double(2), averageRatingOfTrainer.get());
 		});
 	}
+
 
 	@Test
 	void shouldNotGetAverageRatingOfTrainer() {
@@ -135,6 +149,10 @@ class TrainerRatingServiceTest {
 
 		Either<ErrorMsg, TrainerDto> trainer =
 				trainerRatingService.setRateForTheTrainer(TRAINER_ENTITY_EMAIL, "5");
+
+		verifyFindEntityByEmail();
+
+		verifySaveTrainerEntity();
 
 		assertNotNull(trainer);
 		assertTrue(trainer.isRight());
@@ -186,5 +204,21 @@ class TrainerRatingServiceTest {
 			assertTrue(value);
 			assertEquals(message, errorMsg.getMsg());
 		});
+	}
+
+	private void verifyFindEntityByEmail() {
+		verify(trainerDao, times(1))
+				.findByEmail(TRAINER_ENTITY_EMAIL);
+
+		verify(trainerDao)
+				.findByEmail(stringArgumentCaptor.capture());
+	}
+
+	private void verifySaveTrainerEntity() {
+		verify(ratingTrainerDao, times(1))
+				.save(any());
+
+		verify(ratingTrainerDao)
+				.save(ratingTrainerEntityArgumentCaptor.capture());
 	}
 }

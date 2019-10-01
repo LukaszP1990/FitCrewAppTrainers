@@ -2,10 +2,14 @@ package com.fitcrew.FitCrewAppTrainers.service.trainer;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -25,12 +29,14 @@ class TrainerSignInServiceTest {
 	private final static String TRAINER_EMAIL = "mockedTrainer@gmail.com";
 	private static String ENCRYPTED_PASSWORD = "$2y$12$Y3QFw.tzF7OwIJGlpzk9s.5Ymq4zY3hItIkD0Xes3UWxBo2SkEgei";
 
+	@Captor
+	private ArgumentCaptor<String> stringArgumentCaptor;
+
 	@InjectMocks
 	private TrainerSignInService trainerSignInService;
 
 	@Mock
 	private TrainerDao trainerDao;
-
 
 	@Test
 	void shouldGetTrainerDetailsByEmail() {
@@ -40,6 +46,12 @@ class TrainerSignInServiceTest {
 
 		TrainerDto trainerDetailsByEmail =
 				trainerSignInService.getTrainerDetailsByEmail(TRAINER_EMAIL);
+
+		verify(trainerDao, times(1))
+				.findByEmail(TRAINER_EMAIL);
+
+		verify(trainerDao)
+				.findByEmail(stringArgumentCaptor.capture());
 
 		assertNotNull(trainerDetailsByEmail);
 		assertAll(() -> {

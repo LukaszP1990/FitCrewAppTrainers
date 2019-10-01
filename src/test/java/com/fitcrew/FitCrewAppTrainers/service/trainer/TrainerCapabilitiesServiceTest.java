@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -34,10 +36,17 @@ class TrainerCapabilitiesServiceTest {
 
 	private static List<TrainingDto> mockedTrainerDtos = TrainingResourceMockUtil.getListOfTrainings();
 	private static TrainingDto mockedUpdatedTrainerDto = TrainingResourceMockUtil.updateTrainingDto(1);
+	private static TrainingDto mockedCreatedTrainerDto = TrainingResourceMockUtil.getTraining(1);
 	private static List<String> mockedClientNames = ClientResourceMockUtil.getListOfClients();
 	private static final TrainerEntity mockedTrainerEntity = TrainerResourceMockUtil.createTrainerEntity();
 	private final static String TRAINER_EMAIL = "mockedTrainer@gmail.com";
 	private static String ENCRYPTED_PASSWORD = "$2y$12$Y3QFw.tzF7OwIJGlpzk9s.5Ymq4zY3hItIkD0Xes3UWxBo2SkEgei";
+
+	@Captor
+	private ArgumentCaptor<String> argumentCaptorString;
+
+	@Captor
+	private ArgumentCaptor<TrainingDto> trainingDtoArgumentCaptor;
 
 	@Mock
 	private FeignTrainingService feignTrainingService;
@@ -59,6 +68,11 @@ class TrainerCapabilitiesServiceTest {
 
 		Either<ErrorMsg, List<String>> clients =
 				trainerCapabilitiesService.getClientsWhoGetTrainingFromTrainer(TRAINER_EMAIL);
+
+		verifyGetTrainerTrainings();
+
+		verifyClientsWhoBoughtTraining();
+
 		assertNotNull(clients);
 		assertAll(() -> {
 			assertTrue(clients.isRight());
@@ -82,7 +96,6 @@ class TrainerCapabilitiesServiceTest {
 	@Test
 	void shouldGetClientResponses() {
 
-
 	}
 
 	@Test
@@ -98,8 +111,9 @@ class TrainerCapabilitiesServiceTest {
 		Either<ErrorMsg, TrainerDto> basicInformationsAboutTrainer =
 				trainerCapabilitiesService.getBasicInformationsAboutTrainer(TRAINER_EMAIL);
 
-		assertNotNull(basicInformationsAboutTrainer);
+		verifyFindEntityByEmail();
 
+		assertNotNull(basicInformationsAboutTrainer);
 		assertAll(() -> {
 			assertTrue(basicInformationsAboutTrainer.isRight());
 			assertEquals("firstName", basicInformationsAboutTrainer.get().getFirstName());
@@ -137,6 +151,8 @@ class TrainerCapabilitiesServiceTest {
 		Either<ErrorMsg, List<TrainingDto>> trainerTrainings =
 				trainerCapabilitiesService.getTrainerTrainings(TRAINER_EMAIL);
 
+		verifyGetTrainerTrainings();
+
 		assertNotNull(trainerTrainings);
 
 		assertAll(() -> {
@@ -162,10 +178,42 @@ class TrainerCapabilitiesServiceTest {
 
 	@Test
 	void shouldCreateTraining() {
+
+		when(trainerDao.findByEmail(anyString()))
+				.thenReturn(mockedTrainerEntity);
+
+		when(feignTrainingService.createTraining(any()))
+				.thenReturn(mockedCreatedTrainerDto);
+
+		Either<ErrorMsg, TrainingDto> training =
+				trainerCapabilitiesService.createTraining(mockedCreatedTrainerDto, TRAINER_EMAIL);
+
+		verifyFindEntityByEmail();
+
+		verifyCreateTraining();
+
+		assertNotNull(training);
+
+		assertAll(() -> {
+			assertTrue(training.isRight());
+			assertEquals("default name 1", training.get().getTrainingName());
+			assertEquals("some training", training.get().getTraining());
+			assertEquals(TRAINER_EMAIL, training.get().getTrainerEmail());
+		});
 	}
 
 	@Test
 	void shouldNotCreateTraining() {
+
+		Either<ErrorMsg, TrainingDto> noTraining =
+				trainerCapabilitiesService.createTraining(mockedCreatedTrainerDto, TRAINER_EMAIL);
+
+		assertNotNull(noTraining);
+
+		checkEitherLeft(
+				true,
+				"No training created",
+				noTraining.getLeft());
 	}
 
 	@Test
@@ -174,6 +222,16 @@ class TrainerCapabilitiesServiceTest {
 
 	@Test
 	void shouldNotDeleteTraining() {
+
+		Either<ErrorMsg, TrainingDto> noDeletedTraining =
+				trainerCapabilitiesService.deleteTraining(TRAINER_EMAIL, "default name 1");
+
+		assertNotNull(noDeletedTraining);
+
+		checkEitherLeft(
+				true,
+				"No training deleted",
+				noDeletedTraining.getLeft());
 	}
 
 	@Test
@@ -187,6 +245,10 @@ class TrainerCapabilitiesServiceTest {
 
 		Either<ErrorMsg, TrainingDto> updatedTraining =
 				trainerCapabilitiesService.updateTraining(mockedUpdatedTrainerDto, TRAINER_EMAIL);
+
+		verifyFindEntityByEmail();
+
+		verifyUpdateTraining();
 
 		assertNotNull(updatedTraining);
 		assertAll(() -> {
@@ -213,10 +275,22 @@ class TrainerCapabilitiesServiceTest {
 
 	@Test
 	void shouldSelectTrainingToSend() {
+
+
 	}
 
 	@Test
 	void shouldNotSelectTrainingToSend() {
+
+		Either<ErrorMsg, TrainingDto> noSelectedTraining =
+				trainerCapabilitiesService.selectTrainingToSend(TRAINER_EMAIL, "default name 1");
+
+		assertNotNull(noSelectedTraining);
+
+		checkEitherLeft(
+				true,
+				"No training selected",
+				noSelectedTraining.getLeft());
 	}
 
 	private void checkEitherLeft(boolean value,
@@ -226,5 +300,48 @@ class TrainerCapabilitiesServiceTest {
 			assertTrue(value);
 			assertEquals(message, errorMsg.getMsg());
 		});
+	}
+
+	private void verifyClientsWhoBoughtTraining() {
+		verify(feignTrainingService, times(3))
+				.clientsWhoBoughtTraining(anyString());
+
+		verify(feignTrainingService, times(3))
+				.clientsWhoBoughtTraining(argumentCaptorString.capture());
+	}
+
+	private void verifyGetTrainerTrainings() {
+		verify(feignTrainingService, times(1))
+				.getTrainerTrainings(anyString());
+
+		verify(feignTrainingService)
+				.getTrainerTrainings(argumentCaptorString.capture());
+	}
+
+	private void verifyFindEntityByEmail() {
+		verify(trainerDao, times(1))
+				.findByEmail(TRAINER_EMAIL);
+
+		verify(trainerDao)
+				.findByEmail(argumentCaptorString.capture());
+	}
+
+	private void verifyCreateTraining() {
+		verify(feignTrainingService, times(1))
+				.createTraining(mockedCreatedTrainerDto);
+
+		verify(feignTrainingService)
+				.createTraining(trainingDtoArgumentCaptor.capture());
+	}
+
+	private void verifyUpdateTraining() {
+		verify(feignTrainingService, times(1))
+				.updateTraining(mockedUpdatedTrainerDto, anyString());
+
+		verify(feignTrainingService)
+				.updateTraining(
+						trainingDtoArgumentCaptor.capture(),
+						argumentCaptorString.capture()
+				);
 	}
 }

@@ -2,12 +2,16 @@ package com.fitcrew.FitCrewAppTrainers.service.admin;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -32,6 +36,9 @@ class TrainerAdminServiceTest {
 	private final static String TRAINER_EMAIL = "mockedTrainer@gmail.com";
 	private static String ENCRYPTED_PASSWORD = "$2y$12$Y3QFw.tzF7OwIJGlpzk9s.5Ymq4zY3hItIkD0Xes3UWxBo2SkEgei";
 
+	@Captor
+	private ArgumentCaptor<String> stringArgumentCaptor;
+
 	@Mock
 	private TrainerDao trainerDao;
 
@@ -45,6 +52,9 @@ class TrainerAdminServiceTest {
 				.thenReturn(mockedTrainerEntities);
 
 		Either<ErrorMsg, List<TrainerDto>> trainers = trainerAdminService.getTrainers();
+
+		verify(trainerDao,times(1)).findAll();
+
 		assertNotNull(trainers);
 		assertAll(() -> {
 			assertTrue(trainers.isRight());
@@ -71,6 +81,8 @@ class TrainerAdminServiceTest {
 
 		Either<ErrorMsg, TrainerDto> deletedTrainer =
 				trainerAdminService.deleteTrainer(TRAINER_EMAIL);
+
+		verifyFindEntityByEmail();
 
 		assertNotNull(deletedTrainer);
 		assertAll(() -> {
@@ -109,6 +121,8 @@ class TrainerAdminServiceTest {
 		Either<ErrorMsg, TrainerDto> updatedTrainer =
 				trainerAdminService.updateTrainer(mockedUpdatedTrainerDto, TRAINER_EMAIL);
 
+		verifyFindEntityByEmail();
+
 		assertNotNull(updatedTrainer);
 		assertAll(() -> {
 			assertTrue(updatedTrainer.isRight());
@@ -144,6 +158,8 @@ class TrainerAdminServiceTest {
 
 		Either<ErrorMsg, TrainerDto> trainer =
 				trainerAdminService.getTrainer(TRAINER_EMAIL);
+
+		verifyFindEntityByEmail();
 
 		assertNotNull(trainer);
 		assertAll(() -> {
@@ -181,5 +197,13 @@ class TrainerAdminServiceTest {
 			assertTrue(value);
 			assertEquals(message, errorMsg.getMsg());
 		});
+	}
+
+	private void verifyFindEntityByEmail() {
+		verify(trainerDao, times(1))
+				.findByEmail(TRAINER_EMAIL);
+
+		verify(trainerDao)
+				.findByEmail(stringArgumentCaptor.capture());
 	}
 }

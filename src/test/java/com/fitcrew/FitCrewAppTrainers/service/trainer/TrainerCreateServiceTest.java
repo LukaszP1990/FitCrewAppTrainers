@@ -3,10 +3,14 @@ package com.fitcrew.FitCrewAppTrainers.service.trainer;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -31,6 +35,9 @@ class TrainerCreateServiceTest {
 	private static final TrainerEntity mockedTrainerEntity = TrainerResourceMockUtil.createTrainerEntity();
 	private static final TrainerDto mockedTrainerDto = TrainerResourceMockUtil.createTrainerDto();
 
+	@Captor
+	private ArgumentCaptor<TrainerEntity> trainerEntityArgumentCaptor;
+
 	@Mock
 	private TrainerDao trainerDao;
 
@@ -50,6 +57,13 @@ class TrainerCreateServiceTest {
 
 		Either<ErrorMsg, TrainerDto> trainerDto = trainerCreateService.createTrainer(mockedTrainerDto);
 		assertNotNull(trainerDto);
+
+		verify(trainerDao, times(1))
+				.save(any());
+
+		verify(trainerDao)
+				.save(trainerEntityArgumentCaptor.capture());
+
 		assertAll(() -> {
 			assertTrue(trainerDto.isRight());
 			assertEquals("firstName", trainerDto.get().getFirstName());

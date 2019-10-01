@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -30,6 +32,9 @@ class TrainerSearchServiceTest {
 	private static final TrainerEntity mockedTrainerEntity = TrainerResourceMockUtil.createTrainerEntity();
 	private final static String TRAINER_EMAIL = "mockedTrainer@gmail.com";
 
+	@Captor
+	private ArgumentCaptor<String> stringArgumentCaptor;
+
 	@Mock
 	private TrainerDao trainerDao;
 
@@ -42,6 +47,8 @@ class TrainerSearchServiceTest {
 		when(trainerDao.findAll()).thenReturn(mockedTrainerEntities);
 
 		Either<ErrorMsg, List<TrainerDto>> listOfTrainers = trainerSearchService.getTrainers();
+
+		verify(trainerDao,times(1)).findAll();
 
 		assertNotNull(listOfTrainers);
 
@@ -71,6 +78,12 @@ class TrainerSearchServiceTest {
 
 		Either<ErrorMsg, TrainerDto> trainer =
 				trainerSearchService.getTrainer(TRAINER_EMAIL);
+
+		verify(trainerDao, times(1))
+				.findByEmail(TRAINER_EMAIL);
+
+		verify(trainerDao)
+				.findByEmail(stringArgumentCaptor.capture());
 
 		assertNotNull(trainer);
 		assertAll(() -> {
