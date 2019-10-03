@@ -1,12 +1,11 @@
 package com.fitcrew.FitCrewAppTrainers.service.trainer;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
+import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
+import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
+import com.fitcrew.FitCrewAppTrainers.dto.TrainerDto;
+import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
+import com.fitcrew.FitCrewAppTrainers.util.TrainerResourceMockUtil;
+import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -18,14 +17,10 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
-import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
-import com.fitcrew.FitCrewAppTrainers.dto.TrainerDto;
-import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
-import com.fitcrew.FitCrewAppTrainers.util.ClientResourceMockUtil;
-import com.fitcrew.FitCrewAppTrainers.util.TrainerResourceMockUtil;
-
-import io.vavr.control.Either;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)

@@ -27,7 +27,7 @@ public interface FeignTrainingService {
 
     @PutMapping("/updateTraining/{trainerEmail}/trainerEmail")
     TrainingDto updateTraining(@RequestBody TrainingDto trainingDto,
-                               @PathVariable String trainingName);
+                               @PathVariable String trainerEmail);
 
     @GetMapping("/selectTraining/{trainerEmail}/trainerEmail/{trainingName}/trainingName")
     TrainingDto selectTraining(@PathVariable String trainerEmail,

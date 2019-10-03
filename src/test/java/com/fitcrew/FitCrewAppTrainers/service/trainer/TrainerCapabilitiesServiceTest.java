@@ -1,25 +1,7 @@
 package com.fitcrew.FitCrewAppTrainers.service.trainer;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
-
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
-
 import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
 import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
-import com.fitcrew.FitCrewAppTrainers.dto.ClientResponsesDto;
 import com.fitcrew.FitCrewAppTrainers.dto.TrainerDto;
 import com.fitcrew.FitCrewAppTrainers.dto.TrainingDto;
 import com.fitcrew.FitCrewAppTrainers.feignclient.FeignTrainingService;
@@ -27,8 +9,22 @@ import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.fitcrew.FitCrewAppTrainers.util.ClientResourceMockUtil;
 import com.fitcrew.FitCrewAppTrainers.util.TrainerResourceMockUtil;
 import com.fitcrew.FitCrewAppTrainers.util.TrainingResourceMockUtil;
-
 import io.vavr.control.Either;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -218,7 +214,26 @@ class TrainerCapabilitiesServiceTest {
 
 	@Test
 	void shouldDeleteTraining() {
+
+		when(feignTrainingService.deleteTraining(anyString(), anyString()))
+				.thenReturn(mockedCreatedTrainerDto);
+
+		Either<ErrorMsg, TrainingDto> deletedTraining =
+				trainerCapabilitiesService.deleteTraining(TRAINER_EMAIL, "default name 1");
+
+		verifyDeleteTraining();
+
+		assertNotNull(deletedTraining);
+
+		assertAll(() -> {
+			assertTrue(deletedTraining.isRight());
+			assertEquals("default name 1", deletedTraining.get().getTrainingName());
+			assertEquals("some training", deletedTraining.get().getTraining());
+			assertEquals(TRAINER_EMAIL, deletedTraining.get().getTrainerEmail());
+		});
+
 	}
+
 
 	@Test
 	void shouldNotDeleteTraining() {
@@ -276,6 +291,24 @@ class TrainerCapabilitiesServiceTest {
 	@Test
 	void shouldSelectTrainingToSend() {
 
+		when(trainerDao.findByEmail(anyString()))
+				.thenReturn(mockedTrainerEntity);
+
+		when(feignTrainingService.selectTraining(anyString(), anyString()))
+				.thenReturn(mockedCreatedTrainerDto);
+
+		Either<ErrorMsg, TrainingDto> selectedTraining =
+				trainerCapabilitiesService.selectTrainingToSend(TRAINER_EMAIL, "default name 1");
+
+		verifyFindEntityByEmail();
+
+		assertNotNull(selectedTraining);
+		assertAll(() -> {
+			assertTrue(selectedTraining.isRight());
+			assertEquals("default name 1", selectedTraining.get().getTrainingName());
+			assertEquals("some training", selectedTraining.get().getTraining());
+			assertEquals(TRAINER_EMAIL, selectedTraining.get().getTrainerEmail());
+		});
 
 	}
 
@@ -336,7 +369,7 @@ class TrainerCapabilitiesServiceTest {
 
 	private void verifyUpdateTraining() {
 		verify(feignTrainingService, times(1))
-				.updateTraining(mockedUpdatedTrainerDto, anyString());
+				.updateTraining(mockedUpdatedTrainerDto, TRAINER_EMAIL);
 
 		verify(feignTrainingService)
 				.updateTraining(
@@ -344,4 +377,13 @@ class TrainerCapabilitiesServiceTest {
 						argumentCaptorString.capture()
 				);
 	}
+
+	private void verifyDeleteTraining() {
+		verify(feignTrainingService, times(1))
+				.deleteTraining(TRAINER_EMAIL, "default name 1");
+
+		verify(feignTrainingService)
+				.deleteTraining(argumentCaptorString.capture(), argumentCaptorString.capture());
+	}
+
 }

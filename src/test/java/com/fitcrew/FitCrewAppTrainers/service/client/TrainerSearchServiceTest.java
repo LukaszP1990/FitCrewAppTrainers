@@ -1,28 +1,25 @@
 package com.fitcrew.FitCrewAppTrainers.service.client;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.util.List;
-
+import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
+import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
+import com.fitcrew.FitCrewAppTrainers.dto.TrainerDto;
+import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
+import com.fitcrew.FitCrewAppTrainers.util.TrainerResourceMockUtil;
+import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
-import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
-import com.fitcrew.FitCrewAppTrainers.dto.TrainerDto;
-import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
-import com.fitcrew.FitCrewAppTrainers.util.TrainerResourceMockUtil;
+import java.util.List;
 
-import io.vavr.control.Either;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
