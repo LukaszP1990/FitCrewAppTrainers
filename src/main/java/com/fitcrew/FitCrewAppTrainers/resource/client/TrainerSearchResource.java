@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Api(value = "Search trainers resource")
 @Slf4j
 @RestController
-@RequestMapping("/trainer")
+@RequestMapping("/trainer/search/")
 class TrainerSearchResource {
 
     private final TrainerSearchService trainerSearchService;

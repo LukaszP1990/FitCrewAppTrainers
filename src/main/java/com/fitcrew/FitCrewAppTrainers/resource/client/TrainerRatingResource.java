@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Api(value = "Trainer rating resource")
 @Slf4j
 @RestController
-@RequestMapping("/trainer")
+@RequestMapping("/trainer/rate/")
 class TrainerRatingResource {
 
     private final TrainerRatingService trainerRatingService;
