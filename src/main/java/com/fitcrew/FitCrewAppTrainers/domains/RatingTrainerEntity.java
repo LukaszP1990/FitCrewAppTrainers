@@ -33,5 +33,5 @@ class RatingTrainerEntity implements Serializable {
 
 	@ManyToOne
 	@JoinColumn(name = "trainerEntityId")
-	private RatingTrainerEntity ratingTrainerEntity;
+	private TrainerEntity trainerEntity;
 }

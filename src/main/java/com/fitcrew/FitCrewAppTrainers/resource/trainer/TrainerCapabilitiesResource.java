@@ -2,6 +2,8 @@ package com.fitcrew.FitCrewAppTrainers.resource.trainer;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -114,18 +116,17 @@ class TrainerCapabilitiesResource {
                     @ApiResponse(code = 404, message = "404 not found, url is wrong")
             }
     )
-    @PostMapping(value = "/createTraining/{trainerEmail}/trainerEmail",
+    @PostMapping(value = "/createTraining",
             consumes = {
                     MediaType.APPLICATION_JSON_VALUE,
                     MediaType.APPLICATION_XML_VALUE},
             produces = {
                     MediaType.APPLICATION_JSON_VALUE,
                     MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity createTrainingByTrainer(@PathVariable String trainerEmail,
-                                                  @RequestBody TrainingDto trainingDto) {
+    public ResponseEntity createTrainingByTrainer(@RequestBody @Valid TrainingDto trainingDto) {
 
         Either<ErrorMsg, TrainingDto> trainerTrainings =
-                trainerCapabilitiesService.createTraining(trainingDto, trainerEmail);
+                trainerCapabilitiesService.createTraining(trainingDto);
 
         return ResponseResolver.resolve(trainerTrainings);
     }

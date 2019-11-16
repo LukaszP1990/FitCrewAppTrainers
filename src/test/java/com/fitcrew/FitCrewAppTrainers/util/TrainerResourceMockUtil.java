@@ -4,8 +4,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import com.fitcrew.FitCrewAppTrainers.domains.EmailEntity;
 import com.fitcrew.FitCrewAppTrainers.domains.RatingTrainerEntity;
 import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
+import com.fitcrew.FitCrewAppTrainers.dto.EmailDto;
 import com.fitcrew.FitCrewAppTrainers.dto.TrainerDto;
 
 public class TrainerResourceMockUtil {
@@ -56,14 +58,32 @@ public class TrainerResourceMockUtil {
 				"501928342");
 	}
 
-	public static List<RatingTrainerEntity> createRatingTrainerEntities() {
+	private static List<RatingTrainerEntity> createRatingTrainerEntities() {
 		return IntStream.rangeClosed(1, 3)
-				.mapToObj(value -> prepareRatingTrainerEntityData(value))
+				.mapToObj(TrainerResourceMockUtil::prepareRatingTrainerEntityData)
 				.collect(Collectors.toList());
 	}
 
 	public static RatingTrainerEntity createRatingTrainerEntity() {
 		return prepareRatingTrainerEntityData(2);
+	}
+
+	public static EmailEntity createEmailEntity() {
+		return EmailEntity.builder()
+				.sender("senderTest")
+				.recipient("firstName lastName1")
+				.subject("Test message")
+				.bodyOfMessage("Hi this is a test message")
+				.build();
+	}
+
+	public static EmailDto createEmailDto() {
+		return EmailDto.builder()
+				.sender("senderTest")
+				.recipient("firstName lastName1")
+				.subject("Test message")
+				.bodyOfMessage("Hi this is a test message")
+				.build();
 	}
 
 	private static RatingTrainerEntity prepareRatingTrainerEntityData(int rating) {

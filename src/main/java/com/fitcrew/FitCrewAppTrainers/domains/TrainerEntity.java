@@ -54,7 +54,7 @@ public class TrainerEntity implements Serializable {
     @Column(nullable = false, unique = true)
     private String encryptedPassword;
 
-    @OneToMany(mappedBy = "ratingTrainerEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "trainerEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<RatingTrainerEntity> ratingTrainerEntity;
 
 }

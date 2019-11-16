@@ -182,7 +182,7 @@ class TrainerCapabilitiesServiceTest {
                 .thenReturn(mockedCreatedTrainerDto);
 
         Either<ErrorMsg, TrainingDto> training =
-                trainerCapabilitiesService.createTraining(mockedCreatedTrainerDto, TRAINER_EMAIL);
+                trainerCapabilitiesService.createTraining(mockedCreatedTrainerDto);
 
         verifyFindEntityByEmail();
 
@@ -197,13 +197,13 @@ class TrainerCapabilitiesServiceTest {
     void shouldNotCreateTraining() {
 
         Either<ErrorMsg, TrainingDto> noTraining =
-                trainerCapabilitiesService.createTraining(mockedCreatedTrainerDto, TRAINER_EMAIL);
+                trainerCapabilitiesService.createTraining(mockedCreatedTrainerDto);
 
         assertNotNull(noTraining);
 
         checkEitherLeft(
                 true,
-                "No training created",
+                "No trainer found",
                 noTraining.getLeft());
     }
 

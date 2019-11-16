@@ -79,12 +79,11 @@ public class TrainerCapabilitiesService {
         }
     }
 
-    public Either<ErrorMsg, TrainingDto> createTraining(TrainingDto trainingDto,
-                                                        String trainerEmail) {
+    public Either<ErrorMsg, TrainingDto> createTraining(TrainingDto trainingDto) {
 
-        TrainerEntity trainerEntity = trainerDao.findByEmail(trainerEmail);
+        TrainerEntity trainerEntity = trainerDao.findByEmail(trainingDto.getTrainerEmail());
 
-        if (trainerEmail != null) {
+        if (trainerEntity != null) {
             log.debug("Trainer who create new training {}", trainerEntity);
             TrainingDto createdTraining = feignTrainingService.createTraining(trainingDto);
 
