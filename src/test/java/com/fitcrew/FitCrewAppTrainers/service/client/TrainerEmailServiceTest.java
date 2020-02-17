@@ -26,6 +26,7 @@ import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
 import com.fitcrew.FitCrewAppTrainers.domains.EmailEntity;
 import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
 import com.fitcrew.FitCrewAppTrainers.dto.EmailDto;
+import com.fitcrew.FitCrewAppTrainers.enums.TrainerErrorMessageType;
 import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.fitcrew.FitCrewAppTrainers.util.TrainerResourceMockUtil;
 
@@ -38,6 +39,10 @@ class TrainerEmailServiceTest {
 	private static final List<TrainerEntity> mockedTrainerEntities = TrainerResourceMockUtil.createTrainerEntities();
 	private static final EmailEntity mockedEmailEntity = TrainerResourceMockUtil.createEmailEntity();
 	private static final EmailDto mockedEmailDto = TrainerResourceMockUtil.createEmailDto();
+	private static String SENDER = "senderTest";
+	private static String RECIPIENT = "firstName lastName";
+	private static String SUBJECT = "Test message";
+	private static String BODY_OF_MESSAGE = "Hi this is a test message";
 
 	@Captor
 	private ArgumentCaptor<EmailEntity> emailEntityArgumentCaptor;
@@ -62,10 +67,10 @@ class TrainerEmailServiceTest {
 		assertNotNull(sentEmail);
 		assertAll(() -> {
 					assertTrue(sentEmail.isRight());
-					assertEquals("senderTest", sentEmail.get().getSender());
-					assertEquals("firstName lastName1", sentEmail.get().getRecipient());
-					assertEquals("Test message", sentEmail.get().getSubject());
-					assertEquals("Hi this is a test message", sentEmail.get().getBodyOfMessage());
+					assertEquals(SENDER, sentEmail.get().getSender());
+					assertEquals(RECIPIENT, sentEmail.get().getRecipient());
+					assertEquals(SUBJECT, sentEmail.get().getSubject());
+					assertEquals(BODY_OF_MESSAGE, sentEmail.get().getBodyOfMessage());
 				}
 		);
 
@@ -74,15 +79,15 @@ class TrainerEmailServiceTest {
 	}
 
 	@Test
-	void shouldNotSendMessageToTheTrainer(){
+	void shouldNotSentEmail(){
+		when(trainerDao.findAll()).thenReturn(mockedTrainerEntities);
 
 		Either<ErrorMsg, EmailDto> noSentEmail =
 				trainerEmailService.sendMessageToTheTrainer(mockedEmailDto);
 
 		assertNotNull(noSentEmail);
-		checkEitherLeft(true,
-				"No email sent because none trainer was found",
-				noSentEmail.getLeft());
+		assertTrue(noSentEmail.isLeft());
+		assertEquals(TrainerErrorMessageType.NO_EMAIL_SENT.toString(), noSentEmail.getLeft().getMsg());
 	}
 
 	private void verifySaveEmailEntity() {
@@ -91,14 +96,5 @@ class TrainerEmailServiceTest {
 
 		verify(emailDao)
 				.save(emailEntityArgumentCaptor.capture());
-	}
-
-	private void checkEitherLeft(boolean value,
-								 String message,
-								 ErrorMsg errorMsg) {
-		assertAll(() -> {
-			assertTrue(value);
-			assertEquals(message, errorMsg.getMsg());
-		});
 	}
 }

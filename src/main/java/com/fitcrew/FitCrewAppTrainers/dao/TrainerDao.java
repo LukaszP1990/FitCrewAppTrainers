@@ -1,10 +1,13 @@
 package com.fitcrew.FitCrewAppTrainers.dao;
 
-import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
+import java.util.Optional;
+
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
+
 @Repository
 public interface TrainerDao extends CrudRepository<TrainerEntity, Long> {
-	TrainerEntity findByEmail(String email);
+	Optional<TrainerEntity> findByEmail(String email);
 }

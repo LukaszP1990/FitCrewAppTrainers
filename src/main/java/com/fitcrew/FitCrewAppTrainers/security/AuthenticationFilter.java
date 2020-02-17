@@ -21,10 +21,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fitcrew.FitCrewAppTrainers.dto.LoginDto;
 import com.fitcrew.FitCrewAppTrainers.dto.TrainerDto;
+import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.fitcrew.FitCrewAppTrainers.service.trainer.TrainerSignInService;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.vavr.control.Either;
 
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -67,11 +69,12 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 											Authentication auth) throws IOException, ServletException {
 
 		String email = ((User) auth.getPrincipal()).getUsername();
-		TrainerDto trainerDetailsByEmail = trainerSignInService.getTrainerDetailsByEmail(email);
+		Either<ErrorMsg, TrainerDto> trainerDetailsByEmail = trainerSignInService.getTrainerDetailsByEmail(email);
 
-		String token = createJwtToken(trainerDetailsByEmail);
-
-		setHeaderResponse(res, trainerDetailsByEmail, token);
+		if (trainerDetailsByEmail.isRight()) {
+			String token = createJwtToken(trainerDetailsByEmail.get());
+			setHeaderResponse(res, trainerDetailsByEmail.get(), token);
+		}
 	}
 
 	private void setHeaderResponse(HttpServletResponse res, TrainerDto trainerDetailsByEmail, String token) {

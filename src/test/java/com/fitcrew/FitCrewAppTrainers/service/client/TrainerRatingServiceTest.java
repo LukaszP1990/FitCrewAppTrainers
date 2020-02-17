@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +33,7 @@ import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
 import com.fitcrew.FitCrewAppTrainers.domains.RatingTrainerEntity;
 import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
 import com.fitcrew.FitCrewAppTrainers.dto.RatingTrainerDto;
+import com.fitcrew.FitCrewAppTrainers.enums.TrainerErrorMessageType;
 import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.fitcrew.FitCrewAppTrainers.util.TrainerResourceMockUtil;
 import com.google.common.collect.Lists;
@@ -49,7 +52,7 @@ class TrainerRatingServiceTest {
 			"firstName lastName3",
 			"firstName lastName2",
 			"firstName lastName1");
-	private final static String TRAINER_ENTITY_EMAIL = "mockedTrainer@gmail.com";
+	private static String TRAINER_ENTITY_EMAIL = "mockedTrainer@gmail.com";
 
 	@Captor
 	private ArgumentCaptor<String> stringArgumentCaptor;
@@ -87,13 +90,10 @@ class TrainerRatingServiceTest {
 					assertFalse(ratingsList.isEmpty());
 					assertFalse(trainerNamesList.isEmpty());
 					assertTrue(
-							checkRatingsIfEqual(
-									mockedRatingList,
-									Lists.newArrayList(ratingsList))
+							checkRatingsIfEqual(Lists.newArrayList(ratingsList))
 					);
 					assertTrue(
 							checkNamesIfEqual(
-									mockedTrainerNamesList,
 									Lists.newArrayList(trainerNamesList))
 					);
 				}
@@ -107,23 +107,19 @@ class TrainerRatingServiceTest {
 				trainerRatingService.getRankingOfTrainers();
 
 		assertNotNull(noRankingOfTrainers);
-
-		checkEitherLeft(true,
-				"No trainers sorted",
-				noRankingOfTrainers.getLeft());
+		checkEitherLeft(noRankingOfTrainers.isLeft(), TrainerErrorMessageType.NO_TRAINERS_SORDER, noRankingOfTrainers.getLeft());
 	}
 
 	@Test
 	void shouldGetAverageRatingOfTrainer() {
 
 		when(trainerDao.findByEmail(anyString()))
-				.thenReturn(mockedTrainerEntity);
+				.thenReturn(Optional.of(mockedTrainerEntity));
 
 		Either<ErrorMsg, Double> averageRatingOfTrainer =
 				trainerRatingService.getAverageRatingOfTrainer(TRAINER_ENTITY_EMAIL);
 
 		verifyFindEntityByEmail();
-
 		assertNotNull(averageRatingOfTrainer);
 		assertAll(() -> {
 			assertTrue(averageRatingOfTrainer.isRight());
@@ -139,17 +135,14 @@ class TrainerRatingServiceTest {
 				trainerRatingService.getAverageRatingOfTrainer(TRAINER_ENTITY_EMAIL);
 
 		assertNotNull(noAverageRatingOfTrainer);
-
-		checkEitherLeft(true,
-				"Trainer not found to calculate the average grade",
-				noAverageRatingOfTrainer.getLeft());
+		checkEitherLeft(noAverageRatingOfTrainer.isLeft(), TrainerErrorMessageType.NO_TRAINER, noAverageRatingOfTrainer.getLeft());
 	}
 
 	@Test
 	void shouldSetRateForTheTrainer() {
 
 		when(trainerDao.findByEmail(anyString()))
-				.thenReturn(mockedTrainerEntity);
+				.thenReturn(Optional.of(mockedTrainerEntity));
 		when(ratingTrainerDao.save(any()))
 				.thenReturn(mockedRatingTrainerEntity);
 
@@ -157,9 +150,7 @@ class TrainerRatingServiceTest {
 				trainerRatingService.setRateForTheTrainer(TRAINER_ENTITY_EMAIL, "5");
 
 		verifyFindEntityByEmail();
-
 		verifySaveTrainerEntity();
-
 		assertNotNull(ratedTrainer);
 		assertTrue(ratedTrainer.isRight());
 	}
@@ -171,51 +162,44 @@ class TrainerRatingServiceTest {
 				trainerRatingService.setRateForTheTrainer(TRAINER_ENTITY_EMAIL, "5");
 
 		assertNotNull(noRatedTrainer);
-
-		checkEitherLeft(true,
-				"Trainer not found",
-				noRatedTrainer.getLeft());
+		checkEitherLeft(noRatedTrainer.isLeft(), TrainerErrorMessageType.NO_TRAINER, noRatedTrainer.getLeft());
 	}
 
-	private static boolean checkRatingsIfEqual(List<Double> mockedRatingList,
-											   List<Double> ratingsList) {
-		if (mockedRatingList.size() == ratingsList.size()) {
-			for (int i = 0; i < ratingsList.size(); i++) {
-				if (!mockedRatingList.get(i).equals(ratingsList.get(i)))
-					return false;
-				else
-					return true;
-			}
-		}
-		return false;
+	private static boolean checkRatingsIfEqual(List<Double> ratingsList) {
+		return Optional.ofNullable(ratingsList)
+				.filter(ratings -> !ratings.isEmpty())
+				.filter(ratings -> mockedRatingList.size() == ratings.size())
+				.map(ratings -> IntStream.rangeClosed(0, ratingsList.size() - 1)
+						.allMatch(value -> checkRatings(ratingsList, value)))
+				.orElse(false);
 	}
 
-	private static boolean checkNamesIfEqual(List<String> mockedTrainerNamesList,
-											 List<String> trainerNamesList) {
-		if (mockedTrainerNamesList.size() == trainerNamesList.size()) {
-			for (int i = 0; i < trainerNamesList.size(); i++) {
-				if (!mockedTrainerNamesList.get(i).equals(trainerNamesList.get(i)))
-					return false;
-				else
-					return true;
-			}
-		}
-		return false;
+	private static boolean checkRatings(List<Double> ratingsList, int i) {
+		return mockedRatingList.get(i).equals(ratingsList.get(i));
 	}
 
-	private void checkEitherLeft(boolean value,
-								 String message,
-								 ErrorMsg errorMsg) {
-		assertAll(() -> {
-			assertTrue(value);
-			assertEquals(message, errorMsg.getMsg());
-		});
+	private static boolean checkNamesIfEqual(List<String> trainerNamesList) {
+		return TrainerRatingServiceTest.mockedTrainerNamesList.size() == trainerNamesList.size() &&
+				IntStream.rangeClosed(0, trainerNamesList.size() - 1)
+						.allMatch(value -> checkTrainerNames(
+								trainerNamesList,
+								value));
+	}
+
+	private static boolean checkTrainerNames(List<String> trainerNamesList, int i) {
+		return TrainerRatingServiceTest.mockedTrainerNamesList.get(i).equals(trainerNamesList.get(i));
+	}
+
+	private void checkEitherLeft(boolean ifLeft,
+								 TrainerErrorMessageType errorMessageType,
+								 ErrorMsg errorMsgEitherLeft) {
+		assertTrue(ifLeft);
+		assertEquals(errorMessageType.toString(), errorMsgEitherLeft.getMsg());
 	}
 
 	private void verifyFindEntityByEmail() {
 		verify(trainerDao, times(1))
 				.findByEmail(TRAINER_ENTITY_EMAIL);
-
 		verify(trainerDao)
 				.findByEmail(stringArgumentCaptor.capture());
 	}
@@ -223,7 +207,6 @@ class TrainerRatingServiceTest {
 	private void verifySaveTrainerEntity() {
 		verify(ratingTrainerDao, times(1))
 				.save(any());
-
 		verify(ratingTrainerDao)
 				.save(ratingTrainerEntityArgumentCaptor.capture());
 	}

@@ -2,6 +2,7 @@ package com.fitcrew.FitCrewAppTrainers.service.client;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
 import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
 import com.fitcrew.FitCrewAppTrainers.dto.TrainerDto;
+import com.fitcrew.FitCrewAppTrainers.enums.TrainerErrorMessageType;
 import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.google.common.collect.Lists;
 
@@ -22,8 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 public class TrainerSearchService {
 
 	private final TrainerDao trainerDao;
-	private String SUCCESSFULLY_MAPPING = "Trainer object mapped successfully {}";
-	private String NOT_SUCCESSFULLY_MAPPING = "Trainer object not mapped successfully";
 
 	public TrainerSearchService(TrainerDao trainerDao) {
 		this.trainerDao = trainerDao;
@@ -34,37 +34,21 @@ public class TrainerSearchService {
 		ModelMapper modelMapper = prepareModelMapperForExistingTraining();
 		ArrayList<TrainerEntity> trainerEntitiesList = prepareTrainerEntitiesList();
 
-		if (!trainerEntitiesList.isEmpty()) {
-
-			log.debug("Trainers found: {}", trainerEntitiesList);
-			List<TrainerDto> trainerToReturn = mapTrainerEntityToDto(modelMapper, trainerEntitiesList);
-
-			return checkEitherResponseForTrainers(trainerToReturn,
-					SUCCESSFULLY_MAPPING,
-					NOT_SUCCESSFULLY_MAPPING);
-
-		} else {
-			return Either.left(new ErrorMsg("No trainers found"));
-		}
+		return Optional.of(trainerEntitiesList)
+				.filter(trainerEntities -> !trainerEntities.isEmpty())
+				.map(trainerEntities -> mapTrainerEntityToDto(modelMapper, trainerEntities))
+				.map(this::checkEitherResponseForTrainers)
+				.orElseGet(()->Either.left(new ErrorMsg(TrainerErrorMessageType.NO_TRAINERS.toString())));
 	}
 
 	public Either<ErrorMsg, TrainerDto> getTrainer(String trainerEmail) {
 
 		ModelMapper modelMapper = prepareModelMapperForExistingTraining();
-		TrainerEntity trainerEntity = trainerDao.findByEmail(trainerEmail);
 
-		if (trainerEntity != null) {
-
-			log.debug("Trainer found: {}", trainerEntity);
-			TrainerDto trainerToReturn = modelMapper.map(trainerEntity, TrainerDto.class);
-
-			return checkEitherResponseForTrainer(trainerToReturn,
-					SUCCESSFULLY_MAPPING,
-					NOT_SUCCESSFULLY_MAPPING);
-
-		} else {
-			return Either.left(new ErrorMsg("No trainer found"));
-		}
+		return trainerDao.findByEmail(trainerEmail)
+				.map(trainerEntity -> modelMapper.map(trainerEntity, TrainerDto.class))
+				.map(this::checkEitherResponseForTrainer)
+				.orElseGet(()->Either.left(new ErrorMsg(TrainerErrorMessageType.NO_TRAINER.toString())));
 	}
 
 	private ArrayList<TrainerEntity> prepareTrainerEntitiesList() {
@@ -87,27 +71,16 @@ public class TrainerSearchService {
 		return modelMapper;
 	}
 
-	private Either<ErrorMsg, List<TrainerDto>> checkEitherResponseForTrainers(List<TrainerDto> trainers,
-																			  String eitherRightMessage,
-																			  String eitherLeftMessage) {
-		if (trainers != null) {
-			log.debug(eitherRightMessage, trainers);
-			return Either.right(trainers);
-		} else {
-			log.debug(eitherLeftMessage);
-			return Either.left(new ErrorMsg(eitherLeftMessage));
-		}
+	private Either<ErrorMsg, List<TrainerDto>> checkEitherResponseForTrainers(List<TrainerDto> trainers) {
+		return Optional.ofNullable(trainers)
+				.filter(trainersList -> !trainersList.isEmpty())
+				.map(Either::<ErrorMsg,List<TrainerDto>>right)
+				.orElse(Either.left(new ErrorMsg(TrainerErrorMessageType.NOT_SUCCESSFULLY_MAPPING.toString())));
 	}
 
-	private Either<ErrorMsg, TrainerDto> checkEitherResponseForTrainer(TrainerDto trainer,
-																	   String eitherRightMessage,
-																	   String eitherLeftMessage) {
-		if (trainer != null) {
-			log.debug(eitherRightMessage, trainer);
-			return Either.right(trainer);
-		} else {
-			log.debug(eitherLeftMessage);
-			return Either.left(new ErrorMsg(eitherLeftMessage));
-		}
+	private Either<ErrorMsg, TrainerDto> checkEitherResponseForTrainer(TrainerDto trainer) {
+		return Optional.ofNullable(trainer)
+				.map(Either::<ErrorMsg, TrainerDto>right)
+				.orElse(Either.left(new ErrorMsg(TrainerErrorMessageType.NOT_SUCCESSFULLY_MAPPING.toString())));
 	}
 }

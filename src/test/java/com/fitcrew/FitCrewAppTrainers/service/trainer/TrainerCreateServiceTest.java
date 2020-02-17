@@ -3,6 +3,7 @@ package com.fitcrew.FitCrewAppTrainers.service.trainer;
 import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
 import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
 import com.fitcrew.FitCrewAppTrainers.dto.TrainerDto;
+import com.fitcrew.FitCrewAppTrainers.enums.TrainerErrorMessageType;
 import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.fitcrew.FitCrewAppTrainers.util.TrainerResourceMockUtil;
 import io.vavr.control.Either;
@@ -29,6 +30,11 @@ class TrainerCreateServiceTest {
 	private static String ENCRYPTED_PASSWORD = "$2y$12$Y3QFw.tzF7OwIJGlpzk9s.5Ymq4zY3hItIkD0Xes3UWxBo2SkEgei";
 	private static final TrainerEntity mockedTrainerEntity = TrainerResourceMockUtil.createTrainerEntity();
 	private static final TrainerDto mockedTrainerDto = TrainerResourceMockUtil.createTrainerDto();
+	private static String TRAINER_FIRST_NAME = "firstName";
+	private static String TRAINER_LAST_NAME = "lastName";
+	private static String TRAINER_DATE_OF_BIRTH = "01.01.1990";
+	private static String TRAINER_PHONE_NUMBER = "501928341";
+	private static String TRAINER_EMAIL = "mockedTrainer@gmail.com";
 
 	@Captor
 	private ArgumentCaptor<TrainerEntity> trainerEntityArgumentCaptor;
@@ -61,12 +67,12 @@ class TrainerCreateServiceTest {
 
 		assertAll(() -> {
 			assertTrue(trainerDto.isRight());
-			assertEquals("firstName", trainerDto.get().getFirstName());
-			assertEquals("lastName", trainerDto.get().getLastName());
-			assertEquals("01.01.1990", trainerDto.get().getDateOfBirth());
+			assertEquals(TRAINER_FIRST_NAME, trainerDto.get().getFirstName());
+			assertEquals(TRAINER_LAST_NAME, trainerDto.get().getLastName());
+			assertEquals(TRAINER_DATE_OF_BIRTH, trainerDto.get().getDateOfBirth());
 			assertEquals(ENCRYPTED_PASSWORD, trainerDto.get().getEncryptedPassword());
-			assertEquals("mockedTrainer@gmail.com", trainerDto.get().getEmail());
-			assertEquals("501928341", trainerDto.get().getPhone());
+			assertEquals(TRAINER_EMAIL, trainerDto.get().getEmail());
+			assertEquals(TRAINER_PHONE_NUMBER, trainerDto.get().getPhone());
 		});
 	}
 
@@ -77,19 +83,7 @@ class TrainerCreateServiceTest {
 				trainerCreateService.createTrainer(mockedTrainerDto);
 
 		assertNotNull(noTrainer);
-		checkEitherLeft(
-				true,
-				"Trainer save failed",
-				noTrainer.getLeft()
-		);
-	}
-
-	private void checkEitherLeft(boolean value,
-								 String message,
-								 ErrorMsg errorMsg) {
-		assertAll(() -> {
-			assertTrue(value);
-			assertEquals(message, errorMsg.getMsg());
-		});
+		assertTrue(noTrainer.isLeft());
+		assertEquals(TrainerErrorMessageType.NO_TRAINING_CREATED.toString(), noTrainer.getLeft().getMsg());
 	}
 }

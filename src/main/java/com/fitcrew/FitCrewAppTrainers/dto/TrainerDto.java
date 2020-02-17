@@ -19,14 +19,14 @@ public class TrainerDto implements Serializable {
 
     private static final long serialVersionUID = -3255126230685615683L;
 
-    @NotNull(message = "First trainingName of trainer cannot be null")
-    @Size(min = 2, max = 20, message = "First trainingName of trainer must be equal or grater than 2 characters and less than 20 character")
-    @ApiModelProperty(value = "First trainingName of trainer")
+    @NotNull(message = "First name of trainer cannot be null")
+    @Size(min = 2, max = 20, message = "First name of trainer must be equal or grater than 2 characters and less than 20 character")
+    @ApiModelProperty(value = "First name of trainer")
     private String firstName;
 
-    @NotNull(message = "Last trainingName of trainer cannot be null")
-    @Size(min = 2, max = 20, message = "Last trainingName of trainer must be equal or grater than 2 characters and less than 20 character")
-    @ApiModelProperty(value = "Last trainingName of trainer")
+    @NotNull(message = "Last name of trainer cannot be null")
+    @Size(min = 2, max = 20, message = "Last name of trainer must be equal or grater than 2 characters and less than 20 character")
+    @ApiModelProperty(value = "Last name of trainer")
     private String lastName;
 
     @NotNull(message = "Trainer email address cannot be null")

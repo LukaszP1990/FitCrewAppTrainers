@@ -203,26 +203,26 @@ class TrainerCapabilitiesResource {
         return ResponseResolver.resolve(basicInformationsAboutTrainer);
     }
 
-    @ApiOperation(value = "Return clients who has bought training")
-    @ApiResponses(value =
-            {
-                    @ApiResponse(code = 200, message = "Successful training to send to the client response!"),
-                    @ApiResponse(code = 400, message = "400 bad request, rest call is made with some invalid data!"),
-                    @ApiResponse(code = 404, message = "404 not found, url is wrong")
-            }
-    )
-    @GetMapping(value = "/clientsWhoBoughtTraining/{trainerEmail}/trainerEmail",
-            consumes = {
-                    MediaType.APPLICATION_JSON_VALUE,
-                    MediaType.APPLICATION_XML_VALUE},
-            produces = {
-                    MediaType.APPLICATION_JSON_VALUE,
-                    MediaType.APPLICATION_XML_VALUE})
-    public ResponseEntity clientsWhoBoughtTraining(@PathVariable String trainerEmail) {
-
-        Either<ErrorMsg, List<String>> clients =
-                trainerCapabilitiesService.getClientsWhoGetTrainingFromTrainer(trainerEmail);
-
-        return ResponseResolver.resolve(clients);
-    }
+//    @ApiOperation(value = "Return clients who has bought training")
+//    @ApiResponses(value =
+//            {
+//                    @ApiResponse(code = 200, message = "Successful training to send to the client response!"),
+//                    @ApiResponse(code = 400, message = "400 bad request, rest call is made with some invalid data!"),
+//                    @ApiResponse(code = 404, message = "404 not found, url is wrong")
+//            }
+//    )
+//    @GetMapping(value = "/clientsWhoBoughtTraining/{trainerEmail}/trainerEmail",
+//            consumes = {
+//                    MediaType.APPLICATION_JSON_VALUE,
+//                    MediaType.APPLICATION_XML_VALUE},
+//            produces = {
+//                    MediaType.APPLICATION_JSON_VALUE,
+//                    MediaType.APPLICATION_XML_VALUE})
+//    public ResponseEntity clientsWhoBoughtTraining(@PathVariable String trainerEmail) {
+//
+//        Either<ErrorMsg, List<String>> clients =
+//                trainerCapabilitiesService.getClientsWhoGetTrainingFromTrainer(trainerEmail);
+//
+//        return ResponseResolver.resolve(clients);
+//    }
 }

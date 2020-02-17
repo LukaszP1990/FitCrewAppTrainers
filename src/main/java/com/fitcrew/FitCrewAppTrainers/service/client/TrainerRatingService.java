@@ -3,8 +3,8 @@ package com.fitcrew.FitCrewAppTrainers.service.client;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -16,6 +16,7 @@ import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
 import com.fitcrew.FitCrewAppTrainers.domains.RatingTrainerEntity;
 import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
 import com.fitcrew.FitCrewAppTrainers.dto.RatingTrainerDto;
+import com.fitcrew.FitCrewAppTrainers.enums.TrainerErrorMessageType;
 import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.google.common.collect.Lists;
 
@@ -38,73 +39,38 @@ public class TrainerRatingService {
 	public Either<ErrorMsg, LinkedHashMap<String, Double>> getRankingOfTrainers() {
 
 		Iterable<TrainerEntity> trainersEntities = trainerDao.findAll();
-		ArrayList<TrainerEntity> trainerEntitiesList = Lists.newArrayList(trainersEntities);
 
-		LinkedHashMap<String, Double> sortedTrainersByRating =
-				prepareSortedTrainersByRating(trainerEntitiesList);
-
-		if (!sortedTrainersByRating.isEmpty()) {
-
-			List<String> sortedTrainersNames = new ArrayList<>(sortedTrainersByRating.keySet());
-			log.debug("Sorted trainers by rating: {}", sortedTrainersNames);
-			return Either.right(sortedTrainersByRating);
-		} else {
-			log.debug("No trainers sorted");
-			return Either.left(new ErrorMsg("No trainers sorted"));
-		}
+		return Optional.of(Lists.newArrayList(trainersEntities))
+				.map(this::prepareSortedTrainersByRating)
+				.filter(stringDoubleLinkedHashMap -> !stringDoubleLinkedHashMap.isEmpty())
+				.map(Either::<ErrorMsg, LinkedHashMap<String, Double>>right)
+				.orElse(Either.left(new ErrorMsg(TrainerErrorMessageType.NO_TRAINERS_SORDER.toString())));
 	}
 
 	public Either<ErrorMsg, Double> getAverageRatingOfTrainer(String trainerEmail) {
-
-		TrainerEntity trainerEntity = trainerDao.findByEmail(trainerEmail);
-
-		if (trainerEntity != null) {
-			log.debug("Average rating of trainer {}", trainerEntity);
-			double averageRating = calculateAverageRating(trainerEntity);
-
-			log.debug("Calculation result {}", averageRating);
-			return Either.right(averageRating);
-		} else {
-			log.debug("Trainer not found to calculate the average grade");
-			return Either.left(new ErrorMsg("Trainer not found to calculate the average grade"));
-		}
+		return trainerDao.findByEmail(trainerEmail)
+				.map(this::calculateAverageRating)
+				.map(Either::<ErrorMsg, Double>right)
+				.orElseGet(() -> Either.left(new ErrorMsg(TrainerErrorMessageType.NO_TRAINER.toString())));
 	}
-
 
 	public Either<ErrorMsg, RatingTrainerDto> setRateForTheTrainer(String trainerEmail,
 																   String ratingForTrainer) {
-
 		ModelMapper modelMapper = prepareModelMapperForExistingTraining();
-		TrainerEntity trainerEntity = trainerDao.findByEmail(trainerEmail);
 
-		if (trainerEntity != null) {
-
-			RatingTrainerEntity ratingTrainerEntity = prepareRatingTrainerEntity(ratingForTrainer, trainerEntity);
-			log.debug("Rating to save {}", ratingTrainerEntity);
-
-			RatingTrainerEntity savedRating =
-					ratingTrainerDao.save(ratingTrainerEntity);
-
-			return tryToSaveRating(modelMapper, savedRating);
-		} else {
-			log.debug("Trainer not found");
-			return Either.left(new ErrorMsg("Trainer not found"));
-		}
-
+		return trainerDao.findByEmail(trainerEmail)
+				.map(trainerEntity ->  prepareRatingTrainerEntity(ratingForTrainer, trainerEntity))
+				.map(ratingTrainerDao::save)
+				.map(ratingTrainerEntity -> tryToSaveRating(modelMapper,ratingTrainerEntity))
+				.orElseGet(()->Either.left(new ErrorMsg(TrainerErrorMessageType.NO_TRAINER.toString())));
 	}
 
 	private Either<ErrorMsg, RatingTrainerDto> tryToSaveRating(ModelMapper modelMapper,
 															   RatingTrainerEntity savedRating) {
-		if (savedRating != null) {
-			RatingTrainerDto ratedTrainerToReturn = modelMapper.map(savedRating, RatingTrainerDto.class);
-
-			return checkEitherResponseForRatedTrainer(ratedTrainerToReturn,
-					"Rated trainer object mapped successfully {}",
-					"Rated trainer object not mapped successfully");
-		} else {
-			log.debug("No rating to save");
-			return Either.left(new ErrorMsg("No rating to save"));
-		}
+		return Optional.ofNullable(savedRating)
+				.map(ratingTrainerEntity -> modelMapper.map(ratingTrainerEntity, RatingTrainerDto.class))
+				.map(this::checkEitherResponseForRatedTrainer)
+				.orElse(Either.left(new ErrorMsg(TrainerErrorMessageType.RATING_ERROR.toString())));
 	}
 
 	private RatingTrainerEntity prepareRatingTrainerEntity(String ratingForTrainer,
@@ -141,23 +107,17 @@ public class TrainerRatingService {
 				.orElse(Double.NaN);
 	}
 
+	private Either<ErrorMsg, RatingTrainerDto> checkEitherResponseForRatedTrainer(RatingTrainerDto ratingTrainer) {
+		return Optional.ofNullable(ratingTrainer)
+				.map(Either::<ErrorMsg, RatingTrainerDto>right)
+				.orElse(Either.left(new ErrorMsg(TrainerErrorMessageType.NOT_SUCCESSFULLY_MAPPING.toString())));
+	}
+
 	private ModelMapper prepareModelMapperForExistingTraining() {
 		ModelMapper modelMapper = new ModelMapper();
 		modelMapper
 				.getConfiguration()
 				.setMatchingStrategy(MatchingStrategies.STRICT);
 		return modelMapper;
-	}
-
-	private Either<ErrorMsg, RatingTrainerDto> checkEitherResponseForRatedTrainer(RatingTrainerDto ratingTrainer,
-																				  String eitherRightMessage,
-																				  String eitherLeftMessage) {
-		if (ratingTrainer != null) {
-			log.debug(eitherRightMessage, ratingTrainer);
-			return Either.right(ratingTrainer);
-		} else {
-			log.debug(eitherLeftMessage);
-			return Either.left(new ErrorMsg(eitherLeftMessage));
-		}
 	}
 }

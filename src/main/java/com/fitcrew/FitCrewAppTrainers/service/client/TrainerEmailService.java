@@ -1,6 +1,7 @@
 package com.fitcrew.FitCrewAppTrainers.service.client;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -11,6 +12,7 @@ import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
 import com.fitcrew.FitCrewAppTrainers.domains.EmailEntity;
 import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
 import com.fitcrew.FitCrewAppTrainers.dto.EmailDto;
+import com.fitcrew.FitCrewAppTrainers.enums.TrainerErrorMessageType;
 import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.google.common.collect.Lists;
 
@@ -35,46 +37,16 @@ public class TrainerEmailService {
 		ModelMapper modelMapper = prepareModelMapperForEmail();
 
 		String[] nameAndSurnameOfRecipient = emailDto.getRecipient().split(" ");
-		String firstNameToCheck = nameAndSurnameOfRecipient[0];
-		String lastNameToCheck = nameAndSurnameOfRecipient[1];
+		String firstName = nameAndSurnameOfRecipient[0];
+		String lastName = nameAndSurnameOfRecipient[1];
 
-		ArrayList<TrainerEntity> trainerEntitiesList = getAllTrainers();
-
-		TrainerEntity foundTrainer = getTrainerByFirstAndLastName(
-				firstNameToCheck,
-				lastNameToCheck,
-				trainerEntitiesList);
-
-		if (foundTrainer != null) {
-
-			EmailEntity emailEntityToSave = modelMapper.map(emailDto, EmailEntity.class);
-			log.debug("Email to save for trainer: {}",
-					foundTrainer.getFirstName() + " " + foundTrainer.getLastName());
-
-			EmailEntity savedEmail = emailDao.save(emailEntityToSave);
-
-			return checkIfEmailWasSaved(savedEmail, modelMapper);
-
-		} else {
-			log.error("None trainer was found: {}",
-					firstNameToCheck + " " + lastNameToCheck);
-
-			return Either.left(new ErrorMsg("No email sent because none trainer was found"));
-		}
-	}
-
-	private Either<ErrorMsg, EmailDto> checkIfEmailWasSaved(EmailEntity savedEmail,
-															ModelMapper modelMapper) {
-		if (savedEmail != null) {
-
-			log.debug("Email saved successfully: {}", savedEmail);
-			EmailDto returnEmail = modelMapper.map(savedEmail, EmailDto.class);
-
-			return Either.right(returnEmail);
-		} else {
-			log.debug("Email save failed");
-			return Either.left(new ErrorMsg("Email save failed"));
-		}
+		return Optional.of(getAllTrainers())
+				.map(trainerEntities -> getTrainerEntity(firstName, lastName, trainerEntities))
+				.map(trainerEntities -> modelMapper.map(emailDto, EmailEntity.class))
+				.map(emailDao::save)
+				.map(entity -> modelMapper.map(entity, EmailDto.class))
+				.map(Either::<ErrorMsg, EmailDto>right)
+				.orElseGet(()->Either.left(new ErrorMsg(TrainerErrorMessageType.NO_EMAIL_SENT.toString())));
 	}
 
 	private ArrayList<TrainerEntity> getAllTrainers() {
@@ -82,14 +54,15 @@ public class TrainerEmailService {
 		return Lists.newArrayList(trainersEntities);
 	}
 
-	private TrainerEntity getTrainerByFirstAndLastName(String firstNameToCheck,
-													   String lastNameToCheck,
-													   ArrayList<TrainerEntity> trainerEntitiesList) {
-		return trainerEntitiesList.stream()
-				.filter(trainerEntity -> lastNameToCheck.equals(trainerEntity.getLastName()))
-				.filter(trainerEntity -> firstNameToCheck.equals(trainerEntity.getFirstName()))
+	private Either<ErrorMsg, TrainerEntity> getTrainerEntity(String firstName,
+															 String lastName,
+															 ArrayList<TrainerEntity> trainerEntities) {
+		return trainerEntities.stream()
+				.filter(trainerEntity -> lastName.equals(trainerEntity.getLastName()))
+				.filter(trainerEntity -> firstName.equals(trainerEntity.getFirstName()))
 				.findFirst()
-				.orElse(null);
+				.map(Either::<ErrorMsg, TrainerEntity>right)
+				.orElse(Either.left(new ErrorMsg(TrainerErrorMessageType.NO_TRAINER.toString())));
 	}
 
 	private ModelMapper prepareModelMapperForEmail() {
@@ -99,5 +72,4 @@ public class TrainerEmailService {
 				.setMatchingStrategy(MatchingStrategies.STRICT);
 		return modelMapper;
 	}
-
 }

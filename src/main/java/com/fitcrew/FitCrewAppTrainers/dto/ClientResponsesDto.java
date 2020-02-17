@@ -25,9 +25,9 @@ public class ClientResponsesDto implements Serializable {
 
 	private static final long serialVersionUID = 2118331620631970477L;
 
-	@NotNull(message = "Client trainingName cannot be null")
-	@Size(min = 2, max = 20, message = "Client trainingName must be equal or grater than 2 characters and less than 20 character")
-	@ApiModelProperty(value = "Client trainingName sender")
+	@NotNull(message = "Client name cannot be null")
+	@Size(min = 2, max = 20, message = "Client name must be equal or grater than 2 characters and less than 20 character")
+	@ApiModelProperty(value = "Client name sender")
 	private String clientName;
 
 	@NotNull(message = "Client message cannot be null")

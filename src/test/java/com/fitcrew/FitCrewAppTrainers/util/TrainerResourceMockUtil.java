@@ -50,12 +50,12 @@ public class TrainerResourceMockUtil {
 
 	public static TrainerDto updateTrainerDto() {
 		return prepareTrainerDtoData(
-				"updatedFirstName",
-				"updatedLastName",
-				"02.02.1990",
-				"updatedTest",
-				"updatedMockedTrainer@gmail.com",
-				"501928342");
+				"firstName",
+				"lastName",
+				"01.01.1990",
+				"test",
+				"mockedTrainer@gmail.com",
+				"501928341");
 	}
 
 	private static List<RatingTrainerEntity> createRatingTrainerEntities() {
@@ -71,7 +71,7 @@ public class TrainerResourceMockUtil {
 	public static EmailEntity createEmailEntity() {
 		return EmailEntity.builder()
 				.sender("senderTest")
-				.recipient("firstName lastName1")
+				.recipient("firstName lastName")
 				.subject("Test message")
 				.bodyOfMessage("Hi this is a test message")
 				.build();
@@ -80,7 +80,7 @@ public class TrainerResourceMockUtil {
 	public static EmailDto createEmailDto() {
 		return EmailDto.builder()
 				.sender("senderTest")
-				.recipient("firstName lastName1")
+				.recipient("firstName lastName")
 				.subject("Test message")
 				.bodyOfMessage("Hi this is a test message")
 				.build();

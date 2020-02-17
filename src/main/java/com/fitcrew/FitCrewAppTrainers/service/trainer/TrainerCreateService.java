@@ -1,5 +1,6 @@
 package com.fitcrew.FitCrewAppTrainers.service.trainer;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
 import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
 import com.fitcrew.FitCrewAppTrainers.dto.TrainerDto;
+import com.fitcrew.FitCrewAppTrainers.enums.TrainerErrorMessageType;
 import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 
 import io.vavr.control.Either;
@@ -32,28 +34,21 @@ public class TrainerCreateService {
 
 	public Either<ErrorMsg, TrainerDto> createTrainer(TrainerDto trainerDto) {
 
+		ModelMapper modelMapper = prepareModelMapper();
 		setPredefinedData(trainerDto);
 
-		ModelMapper modelMapper = prepareModelMapper();
-
-		TrainerEntity trainerEntity = modelMapper.map(trainerDto, TrainerEntity.class);
-		TrainerEntity savedTrainer = trainerDao.save(trainerEntity);
-
-		return checkIfTrainerWasSaved(savedTrainer, modelMapper);
-
+		return Optional.of(trainerDto)
+				.map(trainer -> modelMapper.map(trainer, TrainerEntity.class))
+				.map(trainerDao::save)
+				.map(trainerEntity -> modelMapper.map(trainerEntity,TrainerDto.class))
+				.map(Either::<ErrorMsg, TrainerDto>right)
+				.orElseGet(()->Either.left(new ErrorMsg(TrainerErrorMessageType.NO_TRAINING_CREATED.toString())));
 	}
 
 	private void setPredefinedData(TrainerDto trainerDto) {
 		trainerDto.setTrainerId(UUID.randomUUID().toString());
 		trainerDto.setEncryptedPassword(bCryptPasswordEncoder.encode(trainerDto.getPassword()));
 	}
-
-	private PropertyMap<TrainerDto, TrainerEntity> skipModifiedFieldsMap = new PropertyMap<TrainerDto, TrainerEntity>() {
-		protected void configure() {
-			skip().setTrainerEntityId(trainerId);
-			trainerId++;
-		}
-	};
 
 	private ModelMapper prepareModelMapper() {
 		ModelMapper modelMapper = new ModelMapper();
@@ -64,17 +59,10 @@ public class TrainerCreateService {
 		return modelMapper;
 	}
 
-	private Either<ErrorMsg, TrainerDto> checkIfTrainerWasSaved(TrainerEntity savedTrainer,
-																ModelMapper modelMapper) {
-		if (savedTrainer != null) {
-
-			log.debug("Trainer saved successfully: {}", savedTrainer);
-			TrainerDto returnTrainer = modelMapper.map(savedTrainer, TrainerDto.class);
-
-			return Either.right(returnTrainer);
-		} else {
-			log.debug("Trainer save failed");
-			return Either.left(new ErrorMsg("Trainer save failed"));
+	private PropertyMap<TrainerDto, TrainerEntity> skipModifiedFieldsMap = new PropertyMap<TrainerDto, TrainerEntity>() {
+		protected void configure() {
+			skip().setTrainerEntityId(trainerId);
+			trainerId++;
 		}
-	}
+	};
 }

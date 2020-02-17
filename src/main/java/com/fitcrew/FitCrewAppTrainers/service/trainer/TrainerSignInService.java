@@ -10,9 +10,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
-import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
 import com.fitcrew.FitCrewAppTrainers.dto.TrainerDto;
+import com.fitcrew.FitCrewAppTrainers.enums.TrainerErrorMessageType;
+import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 
+import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -27,33 +29,23 @@ public class TrainerSignInService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
 		log.debug("Trainer searched in database by username: {}", username);
-		TrainerEntity trainerEntity = trainerDao.findByEmail(username);
+		return trainerDao.findByEmail(username)
+				.map(trainerEntity -> new User(trainerEntity.getEmail(),
+						trainerEntity.getEncryptedPassword(),
+						true,
+						true,
+						true,
+						true,
+						new ArrayList<>()))
+				.orElse(null);
 
-		if (trainerEntity == null) {
-			log.debug("Trainer not found in database");
-			return null;
-		}
-		return new User(trainerEntity.getEmail(),
-				trainerEntity.getEncryptedPassword(),
-				true,
-				true,
-				true,
-				true,
-				new ArrayList<>());
 	}
 
-	public TrainerDto getTrainerDetailsByEmail(String email) {
-
-		log.debug("Trainer searched in database by email: {}", email);
-		TrainerEntity trainerEntity = trainerDao.findByEmail(email);
-
-		if (trainerEntity == null) {
-			log.debug("Trainer not found in database");
-			return null;
-		}
-
-		return new ModelMapper().map(trainerEntity, TrainerDto.class);
+	public Either<ErrorMsg, TrainerDto> getTrainerDetailsByEmail(String email) {
+		return trainerDao.findByEmail(email)
+				.map(trainerEntity -> new ModelMapper().map(trainerEntity, TrainerDto.class))
+				.map(Either::<ErrorMsg, TrainerDto>right)
+				.orElseGet(()->Either.left(new ErrorMsg(TrainerErrorMessageType.NO_TRAINER.toString())));
 	}
 }
