@@ -103,7 +103,6 @@ public class TrainerResourceMockUtil {
 				.email("mockedTrainer@gmail.com")
 				.phone("501928341")
 				.somethingAboutYourself("Description about mock trainer")
-				.ratingTrainerEntity(createRatingTrainerEntities())
 				.build();
 	}
 

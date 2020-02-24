@@ -1,12 +1,22 @@
 package com.fitcrew.FitCrewAppTrainers.domains;
 
-import lombok.*;
-
-import javax.persistence.*;
 import java.io.Serializable;
 
-@Entity
-@Table(name = "Rating")
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.Length;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+@Document
 @Getter
 @Setter
 @Builder
@@ -19,19 +29,23 @@ class RatingTrainerEntity implements Serializable {
 	private static final long serialVersionUID = 1421658171867127534L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long ratingTrainerId;
 
-	@Column(nullable = false)
+	@Field(value = "RATING")
+	@NotNull
 	private int rating;
 
-	@Column(nullable = false, length = 20)
+	@Field(value = "FIRST_NAME")
+	@NotNull
+	@Length(max = 20)
 	private String firstName;
 
-	@Column(nullable = false, length = 20)
+	@Field(value = "LAST_NAME")
+	@NotNull
+	@Length(max = 20)
 	private String lastName;
 
-	@ManyToOne
-	@JoinColumn(name = "trainerEntityId")
-	private TrainerEntity trainerEntity;
+	@Field(value = "TRAINER_ID")
+	@NotNull
+	private Long trainerId;
 }

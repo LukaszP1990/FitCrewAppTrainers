@@ -1,15 +1,25 @@
 package com.fitcrew.FitCrewAppTrainers.domains;
 
-import lombok.*;
-
-import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Pattern;
 import java.io.Serializable;
-import java.util.List;
 
-@Entity
-@Table(name = "Trainer")
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+
+import org.hibernate.validator.constraints.Length;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+@Document
 @Getter
 @Setter
 @Builder
@@ -21,40 +31,51 @@ public class TrainerEntity implements Serializable {
     private static final long serialVersionUID = 1421658171867127534L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "trainerEntityId")
     private long trainerEntityId;
 
-    @Column(nullable = false, length = 20)
+    @Field(value = "FIRST_NAME")
+    @NotNull
+    @Length(max = 20)
     private String firstName;
 
-    @Column(nullable = false, length = 20)
+    @Field(value = "LAST_NAME")
+    @NotNull
+    @Length(max = 20)
     private String lastName;
 
-    @Column(name = "Email", nullable = false, unique = true)
+    @Field(value = "EMAIL")
+    @NotNull
+    @Indexed(unique = true)
     @Email
     private String email;
 
-    @Column(nullable = false, length = 20)
+    @Field(value = "DATE_OF_BIRTH")
+    @NotNull
+    @Length(max = 20)
     private String dateOfBirth;
 
-    @Column(nullable = false, unique = true)
+    @Field(value = "PHONE")
+    @NotNull
+    @Indexed(unique = true)
     @Pattern(regexp = "[0-9]{9}")
     private String phone;
 
-    @Column(unique = true)
+    @Field(value = "PLACE_IN_THE_RANKING")
+    @Indexed(unique = true)
     private String placeInTheRanking;
 
-    @Column(nullable = false, length = 200)
+    @Field(value = "SOMETHING_ABOUT_YOURSELF")
+    @NotNull
+    @Length(max = 200)
     private String somethingAboutYourself;
 
-    @Column(nullable = false, unique = true)
+    @Field(value = "TRAINER_ID")
+    @NotNull
+    @Indexed(unique = true)
     private String trainerId;
 
-    @Column(nullable = false, unique = true)
+    @Field(value = "ENCRYPTED_PASSWORD")
+    @NotNull
+    @Indexed(unique = true)
     private String encryptedPassword;
-
-    @OneToMany(mappedBy = "trainerEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<RatingTrainerEntity> ratingTrainerEntity;
-
 }

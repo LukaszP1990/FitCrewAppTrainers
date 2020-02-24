@@ -1,11 +1,11 @@
 package com.fitcrew.FitCrewAppTrainers.domains;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.Length;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,8 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Entity
-@Table(name = "Email")
+@Document
 @Getter
 @Setter
 @Builder
@@ -25,20 +24,27 @@ import lombok.ToString;
 public class EmailEntity {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long emailId;
 
-	@Column(nullable = false, length = 20)
+	@Field(value = "SENDER")
+	@NotNull
+	@Length(max = 20)
 	private String sender;
 
-	@Column(nullable = false, length = 50)
+	@Field(value = "RECIPIENT")
+	@NotNull
+	@Length(max = 50)
 	private String recipient;
 
-	@Column(nullable = false, length = 20)
+	@Field(value = "SUBJECT")
+	@NotNull
+	@Length(max = 20)
 	private String subject;
 
-	@Column(nullable = false)
+	@Field(value = "BODY_OF_MESSAGE")
+	@NotNull
 	private String bodyOfMessage;
 
+	@Field(value = "FILE_PATH_TO_ATTACHMENT")
 	private String filePathToAttachment;
 }

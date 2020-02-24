@@ -74,6 +74,8 @@ class TrainerRatingServiceTest {
 
 		when(trainerDao.findAll())
 				.thenReturn(mockedTrainerEntities);
+		when(ratingTrainerDao.findByTrainerId(any()))
+				.thenReturn(Optional.of(Lists.newArrayList(mockedRatingTrainerEntity)));
 
 		Either<ErrorMsg, LinkedHashMap<String, Double>> rankingOfTrainers =
 				trainerRatingService.getRankingOfTrainers();
@@ -115,6 +117,8 @@ class TrainerRatingServiceTest {
 
 		when(trainerDao.findByEmail(anyString()))
 				.thenReturn(Optional.of(mockedTrainerEntity));
+		when(ratingTrainerDao.findByTrainerId(any()))
+				.thenReturn(Optional.of(Lists.newArrayList(mockedRatingTrainerEntity)));
 
 		Either<ErrorMsg, Double> averageRatingOfTrainer =
 				trainerRatingService.getAverageRatingOfTrainer(TRAINER_ENTITY_EMAIL);

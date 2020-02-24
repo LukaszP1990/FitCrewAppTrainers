@@ -1,10 +1,12 @@
 package com.fitcrew.FitCrewAppTrainers.service.client;
 
-import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -49,7 +51,7 @@ public class TrainerRatingService {
 
 	public Either<ErrorMsg, Double> getAverageRatingOfTrainer(String trainerEmail) {
 		return trainerDao.findByEmail(trainerEmail)
-				.map(this::calculateAverageRating)
+				.map(trainerEntity -> calculateAverageRating(trainerEntity.getTrainerEntityId()))
 				.map(Either::<ErrorMsg, Double>right)
 				.orElseGet(() -> Either.left(new ErrorMsg(TrainerErrorMessageType.NO_TRAINER.toString())));
 	}
@@ -59,10 +61,10 @@ public class TrainerRatingService {
 		ModelMapper modelMapper = prepareModelMapperForExistingTraining();
 
 		return trainerDao.findByEmail(trainerEmail)
-				.map(trainerEntity ->  prepareRatingTrainerEntity(ratingForTrainer, trainerEntity))
+				.map(trainerEntity -> prepareRatingTrainerEntity(ratingForTrainer, trainerEntity))
 				.map(ratingTrainerDao::save)
-				.map(ratingTrainerEntity -> tryToSaveRating(modelMapper,ratingTrainerEntity))
-				.orElseGet(()->Either.left(new ErrorMsg(TrainerErrorMessageType.NO_TRAINER.toString())));
+				.map(ratingTrainerEntity -> tryToSaveRating(modelMapper, ratingTrainerEntity))
+				.orElseGet(() -> Either.left(new ErrorMsg(TrainerErrorMessageType.NO_TRAINER.toString())));
 	}
 
 	private Either<ErrorMsg, RatingTrainerDto> tryToSaveRating(ModelMapper modelMapper,
@@ -79,19 +81,13 @@ public class TrainerRatingService {
 				.firstName(trainerEntity.getFirstName())
 				.lastName(trainerEntity.getFirstName())
 				.rating(Integer.parseInt(ratingForTrainer))
-				.trainerEntity(trainerEntity)
+				.trainerId(trainerEntity.getTrainerEntityId())
 				.build();
 	}
 
-	private LinkedHashMap<String, Double> prepareSortedTrainersByRating(ArrayList<TrainerEntity> trainerEntitiesList) {
-		Map<String, Double> trainerNameAndRatingMap = trainerEntitiesList.stream()
-				.collect(Collectors.toMap(
-						trainerEntity -> trainerEntity.getFirstName() + " " + trainerEntity.getLastName(),
-						this::calculateAverageRating,
-						(oldValue, newValue) -> oldValue
-				));
-
-		return trainerNameAndRatingMap.entrySet().stream()
+	private LinkedHashMap<String, Double> prepareSortedTrainersByRating(List<TrainerEntity> trainerEntitiesList) {
+		Map<String, Double> trainersWithRating = getTrainersWithRatings(trainerEntitiesList);
+		return trainersWithRating.entrySet().stream()
 				.sorted(Comparator.comparingDouble(Map.Entry::getValue))
 				.collect(
 						Collectors.toMap(Map.Entry::getKey,
@@ -100,11 +96,23 @@ public class TrainerRatingService {
 				);
 	}
 
-	private double calculateAverageRating(TrainerEntity trainerEntity) {
-		return trainerEntity.getRatingTrainerEntity().stream()
-				.mapToDouble(RatingTrainerEntity::getRating)
-				.average()
-				.orElse(Double.NaN);
+	private Map<String, Double> getTrainersWithRatings(List<TrainerEntity> trainerEntitiesList) {
+		Map<String, Double> trainersWithRating = new HashMap<>();
+		for (TrainerEntity entity : trainerEntitiesList) {
+			trainersWithRating.put(entity.getFirstName() + " " + entity.getLastName(), calculateAverageRating(entity.getTrainerEntityId()));
+		}
+		return trainersWithRating;
+	}
+
+	private Double calculateAverageRating(Long trainerId) {
+		return ratingTrainerDao.findByTrainerId(trainerId)
+				.filter(ratingTrainerEntities -> !ratingTrainerEntities.isEmpty())
+				.map(ratingTrainerEntities -> ratingTrainerEntities.stream()
+						.mapToDouble(RatingTrainerEntity::getRating)
+						.average())
+				.filter(OptionalDouble::isPresent)
+				.map(OptionalDouble::getAsDouble)
+				.get();
 	}
 
 	private Either<ErrorMsg, RatingTrainerDto> checkEitherResponseForRatedTrainer(RatingTrainerDto ratingTrainer) {
