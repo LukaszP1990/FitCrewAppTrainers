@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import com.fitcrew.FitCrewAppModel.domain.model.EmailDto;
+import com.fitcrew.FitCrewAppModel.domain.model.TrainerDto;
 import com.fitcrew.FitCrewAppTrainers.domains.EmailEntity;
 import com.fitcrew.FitCrewAppTrainers.domains.RatingTrainerEntity;
 import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
-import com.fitcrew.FitCrewAppTrainers.dto.EmailDto;
-import com.fitcrew.FitCrewAppTrainers.dto.TrainerDto;
 
 public class TrainerResourceMockUtil {
 

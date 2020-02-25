@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fitcrew.FitCrewAppTrainers.dto.RatingTrainerDto;
+import com.fitcrew.FitCrewAppModel.domain.model.RatingTrainerDto;
 import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.fitcrew.FitCrewAppTrainers.resolver.ResponseResolver;
 import com.fitcrew.FitCrewAppTrainers.service.client.TrainerRatingService;

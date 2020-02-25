@@ -1,12 +1,17 @@
 package com.fitcrew.FitCrewAppTrainers.service.client;
 
-import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
-import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
-import com.fitcrew.FitCrewAppTrainers.dto.TrainerDto;
-import com.fitcrew.FitCrewAppTrainers.enums.TrainerErrorMessageType;
-import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
-import com.fitcrew.FitCrewAppTrainers.util.TrainerResourceMockUtil;
-import io.vavr.control.Either;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -17,11 +22,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import java.util.List;
-import java.util.Optional;
+import com.fitcrew.FitCrewAppModel.domain.model.TrainerDto;
+import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
+import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
+import com.fitcrew.FitCrewAppTrainers.enums.TrainerErrorMessageType;
+import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
+import com.fitcrew.FitCrewAppTrainers.util.TrainerResourceMockUtil;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import io.vavr.control.Either;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)

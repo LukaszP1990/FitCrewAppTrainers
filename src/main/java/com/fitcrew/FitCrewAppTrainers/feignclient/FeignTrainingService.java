@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.fitcrew.FitCrewAppTrainers.dto.TrainingDto;
+import com.fitcrew.FitCrewAppModel.domain.model.TrainingDto;
 
 @FeignClient(name = "training-service", path = "/training")
 public interface FeignTrainingService {
