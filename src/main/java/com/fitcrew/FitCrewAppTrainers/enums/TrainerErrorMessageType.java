@@ -10,15 +10,13 @@ public enum TrainerErrorMessageType {
 	NO_TRAINERS("No trainers found"),
 	NO_TRAINER("No trainer found"),
 	RATING_ERROR("Rating failed. Something goes wrong"),
-	NO_TRAINERS_SORDER("No trainers sorted"),
+	NO_TRAINERS_SORTED("No trainers sorted"),
 	NO_TRAININGS("No trainings found"),
 	NO_TRAINING_SELECTED("No trainings selected"),
 	NO_TRAINING_UPDATED("No training updated"),
 	NO_TRAINING_DELETED("No training deleted"),
 	NO_TRAINING_CREATED("No training created"),
-	BUY_TRAINING_ERROR("No client has bought trainings from trainer"),
-	NO_EMAIL_SENT("Email sending failed"),
-	NO_CLIENT_SAVED("Client save failed");
+	NO_EMAIL_SENT("Email sending failed");
 
 	TrainerErrorMessageType(String text) {
 	}

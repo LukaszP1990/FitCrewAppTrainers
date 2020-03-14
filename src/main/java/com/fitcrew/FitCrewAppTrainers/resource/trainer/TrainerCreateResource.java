@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fitcrew.FitCrewAppModel.domain.model.TrainerDto;
-import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.fitcrew.FitCrewAppTrainers.resolver.ResponseResolver;
 import com.fitcrew.FitCrewAppTrainers.service.trainer.TrainerCreateService;
 
@@ -16,7 +15,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
 
 @Api(value = "Trainer sign up resource")
@@ -47,8 +45,9 @@ public class TrainerCreateResource {
 	public ResponseEntity createTrainer(@RequestBody TrainerDto trainerDto) {
 
 		log.debug("Trainer to save: {}", trainerDto);
-		Either<ErrorMsg, TrainerDto> trainerToSave = trainerCreateService.createTrainer(trainerDto);
 
-		return ResponseResolver.resolve(trainerToSave);
+		return ResponseResolver.resolve(
+				trainerCreateService.createTrainer(trainerDto)
+		);
 	}
 }

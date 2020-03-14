@@ -17,15 +17,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fitcrew.FitCrewAppModel.domain.model.TrainerDto;
+import com.fitcrew.FitCrewAppTrainers.converter.TrainerDocumentTrainerDtoConverter;
+import com.fitcrew.FitCrewAppTrainers.converter.TrainerDocumentTrainerDtoConverterImpl;
 import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
-import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
+import com.fitcrew.FitCrewAppTrainers.domains.TrainerDocument;
 import com.fitcrew.FitCrewAppTrainers.enums.TrainerErrorMessageType;
 import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.fitcrew.FitCrewAppTrainers.util.TrainerResourceMockUtil;
@@ -36,7 +38,7 @@ import io.vavr.control.Either;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class TrainerSignInServiceTest {
 
-	private final static TrainerEntity mockedTrainerEntity = TrainerResourceMockUtil.createTrainerEntity();
+	private final static TrainerDocument mockedEmailDocument = TrainerResourceMockUtil.createTrainerDocument();
 	private static String TRAINER_EMAIL = "mockedTrainer@gmail.com";
 	private static String ENCRYPTED_PASSWORD = "$2y$12$Y3QFw.tzF7OwIJGlpzk9s.5Ymq4zY3hItIkD0Xes3UWxBo2SkEgei";
 	private static String TRAINER_FIRST_NAME = "firstName";
@@ -47,17 +49,17 @@ class TrainerSignInServiceTest {
 	@Captor
 	private ArgumentCaptor<String> stringArgumentCaptor;
 
-	@InjectMocks
-	private TrainerSignInService trainerSignInService;
+	private TrainerDao trainerDao = Mockito.mock(TrainerDao.class);
+	private TrainerDocumentTrainerDtoConverter trainerConverter = new TrainerDocumentTrainerDtoConverterImpl();
 
-	@Mock
-	private TrainerDao trainerDao;
+	@InjectMocks
+	private TrainerSignInService trainerSignInService = new TrainerSignInService(trainerDao, trainerConverter);
 
 	@Test
 	void shouldGetTrainerDetailsByEmail() {
 
 		when(trainerDao.findByEmail(anyString()))
-				.thenReturn(Optional.of(mockedTrainerEntity));
+				.thenReturn(Optional.of(mockedEmailDocument));
 
 		Either<ErrorMsg, TrainerDto> trainerDetailsByEmail =
 				trainerSignInService.getTrainerDetailsByEmail(TRAINER_EMAIL);
@@ -94,7 +96,7 @@ class TrainerSignInServiceTest {
 	void shouldLoadUserByUsername() {
 
 		when(trainerDao.findByEmail(anyString()))
-				.thenReturn(Optional.of(mockedTrainerEntity));
+				.thenReturn(Optional.of(mockedEmailDocument));
 
 		UserDetails trainerDetailsByEmail = trainerSignInService.loadUserByUsername(TRAINER_EMAIL);
 

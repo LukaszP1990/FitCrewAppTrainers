@@ -16,15 +16,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import com.fitcrew.FitCrewAppModel.domain.model.TrainerDto;
+import com.fitcrew.FitCrewAppTrainers.converter.TrainerDocumentTrainerDtoConverter;
+import com.fitcrew.FitCrewAppTrainers.converter.TrainerDocumentTrainerDtoConverterImpl;
 import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
-import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
+import com.fitcrew.FitCrewAppTrainers.domains.TrainerDocument;
 import com.fitcrew.FitCrewAppTrainers.enums.TrainerErrorMessageType;
 import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.fitcrew.FitCrewAppTrainers.util.TrainerResourceMockUtil;
@@ -35,8 +36,8 @@ import io.vavr.control.Either;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class TrainerAdminServiceTest {
 
-	private final static List<TrainerEntity> mockedTrainerEntities = TrainerResourceMockUtil.createTrainerEntities();
-	private final static TrainerEntity mockedCreatedTrainerEntity = TrainerResourceMockUtil.createTrainerEntity();
+	private final static List<TrainerDocument> mockedTrainerDocuments = TrainerResourceMockUtil.createTrainerDocuments();
+	private final static TrainerDocument mockedTrainerDocument = TrainerResourceMockUtil.createTrainerDocument();
 	private final static TrainerDto mockedUpdatedTrainerDto = TrainerResourceMockUtil.updateTrainerDto();
 	private static String TRAINER_EMAIL = "mockedTrainer@gmail.com";
 	private static String ENCRYPTED_PASSWORD = "$2y$12$Y3QFw.tzF7OwIJGlpzk9s.5Ymq4zY3hItIkD0Xes3UWxBo2SkEgei";
@@ -48,21 +49,20 @@ class TrainerAdminServiceTest {
 	@Captor
 	private ArgumentCaptor<String> stringArgumentCaptor;
 
-	@Mock
-	private TrainerDao trainerDao;
+	private TrainerDao trainerDao = Mockito.mock(TrainerDao.class);
+	private TrainerDocumentTrainerDtoConverter trainerConverter = new TrainerDocumentTrainerDtoConverterImpl();
 
-	@InjectMocks
-	private TrainerAdminService trainerAdminService;
+	private TrainerAdminService trainerAdminService = new TrainerAdminService(trainerDao, trainerConverter);
 
 	@Test
 	void shouldGetTrainers() {
 
 		when(trainerDao.findAll())
-				.thenReturn(mockedTrainerEntities);
+				.thenReturn(mockedTrainerDocuments);
 
 		Either<ErrorMsg, List<TrainerDto>> trainers = trainerAdminService.getTrainers();
 
-		verify(trainerDao,times(1)).findAll();
+		verify(trainerDao, times(1)).findAll();
 		assertNotNull(trainers);
 		assertAll(() -> {
 			assertTrue(trainers.isRight());
@@ -74,6 +74,7 @@ class TrainerAdminServiceTest {
 	void shouldNotGetTrainers() {
 
 		Either<ErrorMsg, List<TrainerDto>> noTrainers = trainerAdminService.getTrainers();
+
 		assertNotNull(noTrainers);
 		checkEitherLeft(noTrainers.isLeft(), TrainerErrorMessageType.NO_TRAINER, noTrainers.getLeft());
 	}
@@ -82,25 +83,13 @@ class TrainerAdminServiceTest {
 	void shouldDeleteTrainer() {
 
 		when(trainerDao.findByEmail(anyString()))
-				.thenReturn(Optional.of(mockedCreatedTrainerEntity));
+				.thenReturn(Optional.of(mockedTrainerDocument));
 
 		Either<ErrorMsg, TrainerDto> deletedTrainer =
 				trainerAdminService.deleteTrainer(TRAINER_EMAIL);
 
-		verifyFindEntityByEmail();
-		assertNotNull(deletedTrainer);
-		assertAll(() -> {
-			assertTrue(deletedTrainer.isRight());
-			assertEquals(TRAINER_FIRST_NAME, deletedTrainer.get().getFirstName());
-			assertEquals(TRAINER_LAST_NAME, deletedTrainer.get().getLastName());
-			assertEquals(TRAINER_DATE_OF_BIRTH, deletedTrainer.get().getDateOfBirth());
-			assertEquals(
-					ENCRYPTED_PASSWORD,
-					deletedTrainer.get().getEncryptedPassword()
-			);
-			assertEquals(TRAINER_EMAIL, deletedTrainer.get().getEmail());
-			assertEquals(TRAINER_PHONE_NUMBER, deletedTrainer.get().getPhone());
-		});
+		verifyFindDocumentByEmail();
+		checkAssertions(deletedTrainer);
 	}
 
 	@Test
@@ -117,24 +106,13 @@ class TrainerAdminServiceTest {
 	void shouldUpdateTrainer() {
 
 		when(trainerDao.findByEmail(anyString()))
-				.thenReturn(Optional.of(mockedCreatedTrainerEntity));
+				.thenReturn(Optional.of(mockedTrainerDocument));
 
 		Either<ErrorMsg, TrainerDto> updatedTrainer =
 				trainerAdminService.updateTrainer(mockedUpdatedTrainerDto, TRAINER_EMAIL);
 
-		verifyFindEntityByEmail();
-		assertNotNull(updatedTrainer);
-		assertAll(() -> {
-			assertTrue(updatedTrainer.isRight());
-			assertEquals(TRAINER_FIRST_NAME, updatedTrainer.get().getFirstName());
-			assertEquals(TRAINER_LAST_NAME, updatedTrainer.get().getLastName());
-			assertEquals(TRAINER_DATE_OF_BIRTH, updatedTrainer.get().getDateOfBirth());
-			assertEquals(
-					ENCRYPTED_PASSWORD,
-					updatedTrainer.get().getEncryptedPassword()
-			);
-			assertEquals(TRAINER_PHONE_NUMBER, updatedTrainer.get().getPhone());
-		});
+		verifyFindDocumentByEmail();
+		checkAssertions(updatedTrainer);
 	}
 
 	@Test
@@ -151,25 +129,13 @@ class TrainerAdminServiceTest {
 	void shouldGetTrainer() {
 
 		when(trainerDao.findByEmail(anyString()))
-				.thenReturn(Optional.of(mockedCreatedTrainerEntity));
+				.thenReturn(Optional.of(mockedTrainerDocument));
 
 		Either<ErrorMsg, TrainerDto> trainer =
 				trainerAdminService.getTrainer(TRAINER_EMAIL);
 
-		verifyFindEntityByEmail();
-		assertNotNull(trainer);
-		assertAll(() -> {
-			assertTrue(trainer.isRight());
-			assertEquals(TRAINER_FIRST_NAME, trainer.get().getFirstName());
-			assertEquals(TRAINER_LAST_NAME, trainer.get().getLastName());
-			assertEquals(TRAINER_DATE_OF_BIRTH, trainer.get().getDateOfBirth());
-			assertEquals(
-					ENCRYPTED_PASSWORD,
-					trainer.get().getEncryptedPassword()
-			);
-			assertEquals(TRAINER_EMAIL, trainer.get().getEmail());
-			assertEquals(TRAINER_PHONE_NUMBER, trainer.get().getPhone());
-		});
+		verifyFindDocumentByEmail();
+		checkAssertions(trainer);
 	}
 
 	@Test
@@ -190,10 +156,26 @@ class TrainerAdminServiceTest {
 	}
 
 
-	private void verifyFindEntityByEmail() {
+	private void verifyFindDocumentByEmail() {
 		verify(trainerDao, times(1))
 				.findByEmail(TRAINER_EMAIL);
 		verify(trainerDao)
 				.findByEmail(stringArgumentCaptor.capture());
+	}
+
+	private void checkAssertions(Either<ErrorMsg, TrainerDto> trainerDto) {
+		assertNotNull(trainerDto);
+		assertAll(() -> {
+			assertTrue(trainerDto.isRight());
+			assertEquals(TRAINER_FIRST_NAME, trainerDto.get().getFirstName());
+			assertEquals(TRAINER_LAST_NAME, trainerDto.get().getLastName());
+			assertEquals(TRAINER_DATE_OF_BIRTH, trainerDto.get().getDateOfBirth());
+			assertEquals(
+					ENCRYPTED_PASSWORD,
+					trainerDto.get().getEncryptedPassword()
+			);
+			assertEquals(TRAINER_EMAIL, trainerDto.get().getEmail());
+			assertEquals(TRAINER_PHONE_NUMBER, trainerDto.get().getPhone());
+		});
 	}
 }

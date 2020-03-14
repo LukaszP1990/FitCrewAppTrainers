@@ -15,17 +15,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import com.fitcrew.FitCrewAppModel.domain.model.EmailDto;
+import com.fitcrew.FitCrewAppTrainers.converter.EmailDocumentEmailDtoConverter;
+import com.fitcrew.FitCrewAppTrainers.converter.EmailDocumentEmailDtoConverterImpl;
 import com.fitcrew.FitCrewAppTrainers.dao.EmailDao;
 import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
-import com.fitcrew.FitCrewAppTrainers.domains.EmailEntity;
-import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
+import com.fitcrew.FitCrewAppTrainers.domains.EmailDocument;
+import com.fitcrew.FitCrewAppTrainers.domains.TrainerDocument;
 import com.fitcrew.FitCrewAppTrainers.enums.TrainerErrorMessageType;
 import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.fitcrew.FitCrewAppTrainers.util.TrainerResourceMockUtil;
@@ -36,8 +37,8 @@ import io.vavr.control.Either;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class TrainerEmailServiceTest {
 
-	private static final List<TrainerEntity> mockedTrainerEntities = TrainerResourceMockUtil.createTrainerEntities();
-	private static final EmailEntity mockedEmailEntity = TrainerResourceMockUtil.createEmailEntity();
+	private static final List<TrainerDocument> mockedTrainerDocuments = TrainerResourceMockUtil.createTrainerDocuments();
+	private static final EmailDocument mockedEmailDocument = TrainerResourceMockUtil.createEmailDocument();
 	private static final EmailDto mockedEmailDto = TrainerResourceMockUtil.createEmailDto();
 	private static String SENDER = "senderTest";
 	private static String RECIPIENT = "firstName lastName";
@@ -45,21 +46,18 @@ class TrainerEmailServiceTest {
 	private static String BODY_OF_MESSAGE = "Hi this is a test message";
 
 	@Captor
-	private ArgumentCaptor<EmailEntity> emailEntityArgumentCaptor;
+	private ArgumentCaptor<EmailDocument> emailDocumentArgumentCaptor;
 
-	@Mock
-	private TrainerDao trainerDao;
+	private TrainerDao trainerDao = Mockito.mock(TrainerDao.class);
+	private EmailDao emailDao = Mockito.mock(EmailDao.class);
+	private EmailDocumentEmailDtoConverter emailConverter = new EmailDocumentEmailDtoConverterImpl();
 
-	@Mock
-	private EmailDao emailDao;
-
-	@InjectMocks
-	TrainerEmailService trainerEmailService;
+	private TrainerEmailService trainerEmailService = new TrainerEmailService(trainerDao, emailDao, emailConverter);
 
 	@Test
 	void shouldSendMessageToTheTrainer() {
-		when(trainerDao.findAll()).thenReturn(mockedTrainerEntities);
-		when(emailDao.save(any(EmailEntity.class))).thenReturn(mockedEmailEntity);
+		when(trainerDao.findAll()).thenReturn(mockedTrainerDocuments);
+		when(emailDao.save(any(EmailDocument.class))).thenReturn(mockedEmailDocument);
 
 		Either<ErrorMsg, EmailDto> sentEmail =
 				trainerEmailService.sendMessageToTheTrainer(mockedEmailDto);
@@ -75,12 +73,12 @@ class TrainerEmailServiceTest {
 		);
 
 		verify(trainerDao, times(1)).findAll();
-		verifySaveEmailEntity();
+		verifySaveEmailDocument();
 	}
 
 	@Test
-	void shouldNotSentEmail(){
-		when(trainerDao.findAll()).thenReturn(mockedTrainerEntities);
+	void shouldNotSentEmail() {
+		when(trainerDao.findAll()).thenReturn(mockedTrainerDocuments);
 
 		Either<ErrorMsg, EmailDto> noSentEmail =
 				trainerEmailService.sendMessageToTheTrainer(mockedEmailDto);
@@ -90,11 +88,11 @@ class TrainerEmailServiceTest {
 		assertEquals(TrainerErrorMessageType.NO_EMAIL_SENT.toString(), noSentEmail.getLeft().getMsg());
 	}
 
-	private void verifySaveEmailEntity() {
+	private void verifySaveEmailDocument() {
 		verify(emailDao, times(1))
 				.save(any());
 
 		verify(emailDao)
-				.save(emailEntityArgumentCaptor.capture());
+				.save(emailDocumentArgumentCaptor.capture());
 	}
 }

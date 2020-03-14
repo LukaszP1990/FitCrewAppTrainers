@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fitcrew.FitCrewAppModel.domain.model.TrainerDto;
-import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.fitcrew.FitCrewAppTrainers.resolver.ResponseResolver;
 import com.fitcrew.FitCrewAppTrainers.service.admin.TrainerAdminService;
 
@@ -19,7 +18,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
 
 @Api(value = "Resource for admin web service")
@@ -66,7 +64,8 @@ class TrainerAdminResource {
             produces = {
                     MediaType.APPLICATION_JSON_VALUE,
                     MediaType.APPLICATION_XML_VALUE})
-    private ResponseEntity deleteTrainer(@PathVariable String trainerEmail) {
+    public ResponseEntity deleteTrainer(@PathVariable String trainerEmail) {
+        log.debug("Delete trainer by trainer email address: {}", trainerEmail);
 
         return ResponseResolver.resolve(trainerAdminService.deleteTrainer(trainerEmail));
     }
@@ -86,12 +85,13 @@ class TrainerAdminResource {
             produces = {
                     MediaType.APPLICATION_JSON_VALUE,
                     MediaType.APPLICATION_XML_VALUE})
-    private ResponseEntity updateTrainer(@RequestBody TrainerDto trainerDto,
+    public ResponseEntity updateTrainer(@RequestBody TrainerDto trainerDto,
                                          @PathVariable String trainerEmail) {
+        log.debug("Update trainer: {} \n by trainer email address: {}", trainerDto, trainerEmail);
 
-        Either<ErrorMsg, TrainerDto> updatedTrainer =
-                trainerAdminService.updateTrainer(trainerDto, trainerEmail);
-        return ResponseResolver.resolve(updatedTrainer);
+        return ResponseResolver.resolve(
+                trainerAdminService.updateTrainer(trainerDto, trainerEmail)
+        );
     }
 
     @ApiOperation(value = "Return single trainer")

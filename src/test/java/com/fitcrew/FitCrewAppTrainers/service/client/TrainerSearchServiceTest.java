@@ -16,15 +16,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import com.fitcrew.FitCrewAppModel.domain.model.TrainerDto;
+import com.fitcrew.FitCrewAppTrainers.converter.TrainerDocumentTrainerDtoConverter;
+import com.fitcrew.FitCrewAppTrainers.converter.TrainerDocumentTrainerDtoConverterImpl;
 import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
-import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
+import com.fitcrew.FitCrewAppTrainers.domains.TrainerDocument;
 import com.fitcrew.FitCrewAppTrainers.enums.TrainerErrorMessageType;
 import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.fitcrew.FitCrewAppTrainers.util.TrainerResourceMockUtil;
@@ -35,8 +36,8 @@ import io.vavr.control.Either;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class TrainerSearchServiceTest {
 
-	private static final List<TrainerEntity> mockedTrainerEntities = TrainerResourceMockUtil.createTrainerEntities();
-	private static final TrainerEntity mockedTrainerEntity = TrainerResourceMockUtil.createTrainerEntity();
+	private static final List<TrainerDocument> mockedTrainerDocuments = TrainerResourceMockUtil.createTrainerDocuments();
+	private static final TrainerDocument mockedTrainerDocument = TrainerResourceMockUtil.createTrainerDocument();
 	private static String TRAINER_EMAIL = "mockedTrainer@gmail.com";
 	private static String TRAINER_FIRST_NAME = "firstName";
 	private static String TRAINER_LAST_NAME = "lastName";
@@ -46,20 +47,19 @@ class TrainerSearchServiceTest {
 	@Captor
 	private ArgumentCaptor<String> stringArgumentCaptor;
 
-	@Mock
-	private TrainerDao trainerDao;
+	private TrainerDao trainerDao = Mockito.mock(TrainerDao.class);
+	private TrainerDocumentTrainerDtoConverter trainerConverter = new TrainerDocumentTrainerDtoConverterImpl();
 
-	@InjectMocks
-	private TrainerSearchService trainerSearchService;
+	private TrainerSearchService trainerSearchService = new TrainerSearchService(trainerDao, trainerConverter);
 
 	@Test
 	void shouldGetTrainers() {
 
-		when(trainerDao.findAll()).thenReturn(mockedTrainerEntities);
+		when(trainerDao.findAll()).thenReturn(mockedTrainerDocuments);
 
 		Either<ErrorMsg, List<TrainerDto>> listOfTrainers = trainerSearchService.getTrainers();
 
-		verify(trainerDao,times(1)).findAll();
+		verify(trainerDao, times(1)).findAll();
 		assertNotNull(listOfTrainers);
 		assertAll(() -> {
 			assertTrue(listOfTrainers.isRight());
@@ -81,7 +81,7 @@ class TrainerSearchServiceTest {
 	void shouldGetTrainer() {
 
 		when(trainerDao.findByEmail(anyString()))
-				.thenReturn(Optional.of(mockedTrainerEntity));
+				.thenReturn(Optional.of(mockedTrainerDocument));
 
 		Either<ErrorMsg, TrainerDto> trainer =
 				trainerSearchService.getTrainer(TRAINER_EMAIL);

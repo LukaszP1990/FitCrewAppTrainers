@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fitcrew.FitCrewAppModel.domain.model.EmailDto;
-import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.fitcrew.FitCrewAppTrainers.resolver.ResponseResolver;
 import com.fitcrew.FitCrewAppTrainers.service.client.TrainerEmailService;
 
@@ -18,7 +17,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
 
 @Api(value = "Trainer email resource")
@@ -29,7 +27,7 @@ class TrainerEmailResource {
 
 	private final TrainerEmailService trainerEmailService;
 
-	TrainerEmailResource(TrainerEmailService trainerEmailService) {
+	public TrainerEmailResource(TrainerEmailService trainerEmailService) {
 		this.trainerEmailService = trainerEmailService;
 	}
 
@@ -48,11 +46,11 @@ class TrainerEmailResource {
 			produces = {
 					MediaType.APPLICATION_JSON_VALUE,
 					MediaType.APPLICATION_XML_VALUE})
-	private ResponseEntity sendMessageToTheTrainer(@RequestBody @Valid EmailDto emailDto) {
+	public ResponseEntity sendMessageToTheTrainer(@RequestBody @Valid EmailDto emailDto) {
+		log.debug("Email sending to the trainer: {}", emailDto);
 
-		Either<ErrorMsg, EmailDto> messageToTheTrainer =
-				trainerEmailService.sendMessageToTheTrainer(emailDto);
-
-		return ResponseResolver.resolve(messageToTheTrainer);
+		return ResponseResolver.resolve(
+				trainerEmailService.sendMessageToTheTrainer(emailDto)
+		);
 	}
 }

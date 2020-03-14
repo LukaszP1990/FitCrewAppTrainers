@@ -21,10 +21,10 @@ import lombok.ToString;
 @AllArgsConstructor(onConstructor = @__(@Builder))
 @NoArgsConstructor
 @ToString
-public class EmailEntity {
+public class EmailDocument {
 
 	@Id
-	private long emailId;
+	private String id;
 
 	@Field(value = "SENDER")
 	@NotNull

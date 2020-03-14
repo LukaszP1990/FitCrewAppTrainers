@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fitcrew.FitCrewAppModel.domain.model.RatingTrainerDto;
-import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.fitcrew.FitCrewAppTrainers.resolver.ResponseResolver;
 import com.fitcrew.FitCrewAppTrainers.service.client.TrainerRatingService;
 
@@ -17,7 +15,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
 
 @Api(value = "Trainer rating resource")
@@ -47,11 +44,11 @@ class TrainerRatingResource {
                     MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity getTrainerRating(@PathVariable String trainerEmail) {
 
-        log.debug("Rating of trainer with email address: {}", trainerEmail);
-        Either<ErrorMsg, Double> averageRatingOfTrainer =
-                trainerRatingService.getAverageRatingOfTrainer(trainerEmail);
+        log.debug("Get trainer rating by trainer email address: {}", trainerEmail);
 
-        return ResponseResolver.resolve(averageRatingOfTrainer);
+        return ResponseResolver.resolve(
+                trainerRatingService.getAverageRatingOfTrainer(trainerEmail)
+        );
     }
 
     @ApiOperation(value = "Return trainers ranking sorted by ratings")
@@ -87,10 +84,10 @@ class TrainerRatingResource {
                     MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity rateTheTrainer(@PathVariable String trainerEmail,
                                          @PathVariable String ratingForTrainer) {
+        log.debug("Rating for trainer: {} \n by trainer email address: {}",ratingForTrainer, trainerEmail);
 
-        Either<ErrorMsg, RatingTrainerDto> ratedTrainer =
-                trainerRatingService.setRateForTheTrainer(trainerEmail, ratingForTrainer);
-
-        return ResponseResolver.resolve(ratedTrainer);
+        return ResponseResolver.resolve(
+                trainerRatingService.setRateForTheTrainer(trainerEmail, ratingForTrainer)
+        );
     }
 }

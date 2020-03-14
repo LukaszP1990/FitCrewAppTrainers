@@ -1,24 +1,25 @@
 package com.fitcrew.FitCrewAppTrainers.util;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.fitcrew.FitCrewAppModel.domain.model.EmailDto;
 import com.fitcrew.FitCrewAppModel.domain.model.TrainerDto;
-import com.fitcrew.FitCrewAppTrainers.domains.EmailEntity;
-import com.fitcrew.FitCrewAppTrainers.domains.RatingTrainerEntity;
-import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
+import com.fitcrew.FitCrewAppTrainers.domains.EmailDocument;
+import com.fitcrew.FitCrewAppTrainers.domains.RatingTrainerDocument;
+import com.fitcrew.FitCrewAppTrainers.domains.TrainerDocument;
 
 public class TrainerResourceMockUtil {
 
-	public static TrainerEntity createTrainerEntity() {
-		return prepareTrainerEntityData("lastName");
+	public static TrainerDocument createTrainerDocument() {
+		return prepareTrainerDocumentData("lastName", 1);
 	}
 
-	public static List<TrainerEntity> createTrainerEntities() {
+	public static List<TrainerDocument> createTrainerDocuments() {
 		return IntStream.rangeClosed(1, 3)
-				.mapToObj(value -> prepareTrainerEntityData("lastName" + value))
+				.mapToObj(value -> prepareTrainerDocumentData("lastName" + value, value))
 				.collect(Collectors.toList());
 	}
 
@@ -58,18 +59,25 @@ public class TrainerResourceMockUtil {
 				"501928341");
 	}
 
-	private static List<RatingTrainerEntity> createRatingTrainerEntities() {
+	public static LinkedHashMap<String, Double> getSortedTrainersRanking() {
+		LinkedHashMap<String, Double> sortedTrainersRanking = new LinkedHashMap<>();
+		sortedTrainersRanking.put("firstName", 9d);
+		sortedTrainersRanking.put("secondName", 10d);
+		return sortedTrainersRanking;
+	}
+
+	public static List<RatingTrainerDocument> createRatingTrainerDocuments() {
 		return IntStream.rangeClosed(1, 3)
-				.mapToObj(TrainerResourceMockUtil::prepareRatingTrainerEntityData)
+				.mapToObj(TrainerResourceMockUtil::prepareRatingTrainerDocumentData)
 				.collect(Collectors.toList());
 	}
 
-	public static RatingTrainerEntity createRatingTrainerEntity() {
-		return prepareRatingTrainerEntityData(2);
+	public static RatingTrainerDocument createRatingTrainerDocument() {
+		return prepareRatingTrainerDocumentData(2);
 	}
 
-	public static EmailEntity createEmailEntity() {
-		return EmailEntity.builder()
+	public static EmailDocument createEmailDocument() {
+		return EmailDocument.builder()
 				.sender("senderTest")
 				.recipient("firstName lastName")
 				.subject("Test message")
@@ -86,16 +94,17 @@ public class TrainerResourceMockUtil {
 				.build();
 	}
 
-	private static RatingTrainerEntity prepareRatingTrainerEntityData(int rating) {
-		return RatingTrainerEntity.builder()
+	private static RatingTrainerDocument prepareRatingTrainerDocumentData(int rating) {
+		return RatingTrainerDocument.builder()
 				.rating(rating)
 				.firstName("mockedName")
 				.lastName("mockedName")
 				.build();
 	}
 
-	private static TrainerEntity prepareTrainerEntityData(String lastName) {
-		return TrainerEntity.builder()
+	private static TrainerDocument prepareTrainerDocumentData(String lastName, int id) {
+		return TrainerDocument.builder()
+				.id(String.valueOf(id))
 				.firstName("firstName")
 				.lastName(lastName)
 				.dateOfBirth("01.01.1990")

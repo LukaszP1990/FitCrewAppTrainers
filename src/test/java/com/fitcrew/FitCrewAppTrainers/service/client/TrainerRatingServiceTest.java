@@ -22,17 +22,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import com.fitcrew.FitCrewAppModel.domain.model.RatingTrainerDto;
+import com.fitcrew.FitCrewAppTrainers.converter.RatingTrainerDocumentRatingTrainerDtoConverter;
+import com.fitcrew.FitCrewAppTrainers.converter.RatingTrainerDocumentRatingTrainerDtoConverterImpl;
 import com.fitcrew.FitCrewAppTrainers.dao.RatingTrainerDao;
 import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
-import com.fitcrew.FitCrewAppTrainers.domains.RatingTrainerEntity;
-import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
+import com.fitcrew.FitCrewAppTrainers.domains.RatingTrainerDocument;
+import com.fitcrew.FitCrewAppTrainers.domains.TrainerDocument;
 import com.fitcrew.FitCrewAppTrainers.enums.TrainerErrorMessageType;
 import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.fitcrew.FitCrewAppTrainers.util.TrainerResourceMockUtil;
@@ -44,38 +45,35 @@ import io.vavr.control.Either;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class TrainerRatingServiceTest {
 
-	private static final List<TrainerEntity> mockedTrainerEntities = TrainerResourceMockUtil.createTrainerEntities();
-	private static final TrainerEntity mockedTrainerEntity = TrainerResourceMockUtil.createTrainerEntity();
-	private static final RatingTrainerEntity mockedRatingTrainerEntity = TrainerResourceMockUtil.createRatingTrainerEntity();
+	private static final List<TrainerDocument> mockedTrainerDocuments = TrainerResourceMockUtil.createTrainerDocuments();
+	private static final TrainerDocument mockedTrainerDocument = TrainerResourceMockUtil.createTrainerDocument();
+	private static final RatingTrainerDocument mockedRatingTrainerDocument = TrainerResourceMockUtil.createRatingTrainerDocument();
 	private static final List<Double> mockedRatingList = Arrays.asList(2.0, 2.0, 2.0);
 	private static final List<String> mockedTrainerNamesList = Arrays.asList(
 			"firstName lastName3",
 			"firstName lastName2",
 			"firstName lastName1");
-	private static String TRAINER_ENTITY_EMAIL = "mockedTrainer@gmail.com";
+	private static String TRAINER_DOCUMENT_EMAIL = "mockedTrainer@gmail.com";
 
 	@Captor
 	private ArgumentCaptor<String> stringArgumentCaptor;
 
 	@Captor
-	private ArgumentCaptor<RatingTrainerEntity> ratingTrainerEntityArgumentCaptor;
+	private ArgumentCaptor<RatingTrainerDocument> ratingTrainerDocumentArgumentCaptor;
 
-	@Mock
-	private TrainerDao trainerDao;
+	private TrainerDao trainerDao = Mockito.mock(TrainerDao.class);
+	private RatingTrainerDao ratingTrainerDao = Mockito.mock(RatingTrainerDao.class);
+	private RatingTrainerDocumentRatingTrainerDtoConverter ratingTrainerConverter = new RatingTrainerDocumentRatingTrainerDtoConverterImpl();
 
-	@Mock
-	private RatingTrainerDao ratingTrainerDao;
-
-	@InjectMocks
-	private TrainerRatingService trainerRatingService;
+	private TrainerRatingService trainerRatingService = new TrainerRatingService(trainerDao, ratingTrainerDao, ratingTrainerConverter);
 
 	@Test
 	void shouldGetRankingOfTrainers() {
 
 		when(trainerDao.findAll())
-				.thenReturn(mockedTrainerEntities);
+				.thenReturn(mockedTrainerDocuments);
 		when(ratingTrainerDao.findByTrainerId(any()))
-				.thenReturn(Optional.of(Lists.newArrayList(mockedRatingTrainerEntity)));
+				.thenReturn(Optional.of(Lists.newArrayList(mockedRatingTrainerDocument)));
 
 		Either<ErrorMsg, LinkedHashMap<String, Double>> rankingOfTrainers =
 				trainerRatingService.getRankingOfTrainers();
@@ -109,21 +107,21 @@ class TrainerRatingServiceTest {
 				trainerRatingService.getRankingOfTrainers();
 
 		assertNotNull(noRankingOfTrainers);
-		checkEitherLeft(noRankingOfTrainers.isLeft(), TrainerErrorMessageType.NO_TRAINERS_SORDER, noRankingOfTrainers.getLeft());
+		checkEitherLeft(noRankingOfTrainers.isLeft(), TrainerErrorMessageType.NO_TRAINERS_SORTED, noRankingOfTrainers.getLeft());
 	}
 
 	@Test
 	void shouldGetAverageRatingOfTrainer() {
 
 		when(trainerDao.findByEmail(anyString()))
-				.thenReturn(Optional.of(mockedTrainerEntity));
+				.thenReturn(Optional.of(mockedTrainerDocument));
 		when(ratingTrainerDao.findByTrainerId(any()))
-				.thenReturn(Optional.of(Lists.newArrayList(mockedRatingTrainerEntity)));
+				.thenReturn(Optional.of(Lists.newArrayList(mockedRatingTrainerDocument)));
 
 		Either<ErrorMsg, Double> averageRatingOfTrainer =
-				trainerRatingService.getAverageRatingOfTrainer(TRAINER_ENTITY_EMAIL);
+				trainerRatingService.getAverageRatingOfTrainer(TRAINER_DOCUMENT_EMAIL);
 
-		verifyFindEntityByEmail();
+		verifyFindDocumentByEmail();
 		assertNotNull(averageRatingOfTrainer);
 		assertAll(() -> {
 			assertTrue(averageRatingOfTrainer.isRight());
@@ -136,7 +134,7 @@ class TrainerRatingServiceTest {
 	void shouldNotGetAverageRatingOfTrainer() {
 
 		Either<ErrorMsg, Double> noAverageRatingOfTrainer =
-				trainerRatingService.getAverageRatingOfTrainer(TRAINER_ENTITY_EMAIL);
+				trainerRatingService.getAverageRatingOfTrainer(TRAINER_DOCUMENT_EMAIL);
 
 		assertNotNull(noAverageRatingOfTrainer);
 		checkEitherLeft(noAverageRatingOfTrainer.isLeft(), TrainerErrorMessageType.NO_TRAINER, noAverageRatingOfTrainer.getLeft());
@@ -146,15 +144,15 @@ class TrainerRatingServiceTest {
 	void shouldSetRateForTheTrainer() {
 
 		when(trainerDao.findByEmail(anyString()))
-				.thenReturn(Optional.of(mockedTrainerEntity));
+				.thenReturn(Optional.of(mockedTrainerDocument));
 		when(ratingTrainerDao.save(any()))
-				.thenReturn(mockedRatingTrainerEntity);
+				.thenReturn(mockedRatingTrainerDocument);
 
 		Either<ErrorMsg, RatingTrainerDto> ratedTrainer =
-				trainerRatingService.setRateForTheTrainer(TRAINER_ENTITY_EMAIL, "5");
+				trainerRatingService.setRateForTheTrainer(TRAINER_DOCUMENT_EMAIL, "5");
 
-		verifyFindEntityByEmail();
-		verifySaveTrainerEntity();
+		verifyFindDocumentByEmail();
+		verifySaveTrainerDocument();
 		assertNotNull(ratedTrainer);
 		assertTrue(ratedTrainer.isRight());
 	}
@@ -163,7 +161,7 @@ class TrainerRatingServiceTest {
 	void shouldNotSetRateForTheTrainer() {
 
 		Either<ErrorMsg, RatingTrainerDto> noRatedTrainer =
-				trainerRatingService.setRateForTheTrainer(TRAINER_ENTITY_EMAIL, "5");
+				trainerRatingService.setRateForTheTrainer(TRAINER_DOCUMENT_EMAIL, "5");
 
 		assertNotNull(noRatedTrainer);
 		checkEitherLeft(noRatedTrainer.isLeft(), TrainerErrorMessageType.NO_TRAINER, noRatedTrainer.getLeft());
@@ -201,17 +199,17 @@ class TrainerRatingServiceTest {
 		assertEquals(errorMessageType.toString(), errorMsgEitherLeft.getMsg());
 	}
 
-	private void verifyFindEntityByEmail() {
+	private void verifyFindDocumentByEmail() {
 		verify(trainerDao, times(1))
-				.findByEmail(TRAINER_ENTITY_EMAIL);
+				.findByEmail(TRAINER_DOCUMENT_EMAIL);
 		verify(trainerDao)
 				.findByEmail(stringArgumentCaptor.capture());
 	}
 
-	private void verifySaveTrainerEntity() {
+	private void verifySaveTrainerDocument() {
 		verify(ratingTrainerDao, times(1))
 				.save(any());
 		verify(ratingTrainerDao)
-				.save(ratingTrainerEntityArgumentCaptor.capture());
+				.save(ratingTrainerDocumentArgumentCaptor.capture());
 	}
 }

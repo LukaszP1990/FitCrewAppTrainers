@@ -9,15 +9,14 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.stream.Collectors;
 
-import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Service;
 
 import com.fitcrew.FitCrewAppModel.domain.model.RatingTrainerDto;
+import com.fitcrew.FitCrewAppTrainers.converter.RatingTrainerDocumentRatingTrainerDtoConverter;
 import com.fitcrew.FitCrewAppTrainers.dao.RatingTrainerDao;
 import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
-import com.fitcrew.FitCrewAppTrainers.domains.RatingTrainerEntity;
-import com.fitcrew.FitCrewAppTrainers.domains.TrainerEntity;
+import com.fitcrew.FitCrewAppTrainers.domains.RatingTrainerDocument;
+import com.fitcrew.FitCrewAppTrainers.domains.TrainerDocument;
 import com.fitcrew.FitCrewAppTrainers.enums.TrainerErrorMessageType;
 import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.google.common.collect.Lists;
@@ -31,62 +30,59 @@ public class TrainerRatingService {
 
 	private final TrainerDao trainerDao;
 	private final RatingTrainerDao ratingTrainerDao;
+	private final RatingTrainerDocumentRatingTrainerDtoConverter ratingTrainerConverter;
 
-	public TrainerRatingService(TrainerDao trainerDao,
-								RatingTrainerDao ratingTrainerDao) {
+	TrainerRatingService(TrainerDao trainerDao,
+						 RatingTrainerDao ratingTrainerDao,
+						 RatingTrainerDocumentRatingTrainerDtoConverter ratingTrainerConverter) {
 		this.trainerDao = trainerDao;
 		this.ratingTrainerDao = ratingTrainerDao;
+		this.ratingTrainerConverter = ratingTrainerConverter;
 	}
 
 	public Either<ErrorMsg, LinkedHashMap<String, Double>> getRankingOfTrainers() {
-
-		Iterable<TrainerEntity> trainersEntities = trainerDao.findAll();
-
-		return Optional.of(Lists.newArrayList(trainersEntities))
+		return Optional.of(Lists.newArrayList(trainerDao.findAll()))
 				.map(this::prepareSortedTrainersByRating)
 				.filter(stringDoubleLinkedHashMap -> !stringDoubleLinkedHashMap.isEmpty())
 				.map(Either::<ErrorMsg, LinkedHashMap<String, Double>>right)
-				.orElse(Either.left(new ErrorMsg(TrainerErrorMessageType.NO_TRAINERS_SORDER.toString())));
+				.orElse(Either.left(new ErrorMsg(TrainerErrorMessageType.NO_TRAINERS_SORTED.toString())));
 	}
 
 	public Either<ErrorMsg, Double> getAverageRatingOfTrainer(String trainerEmail) {
 		return trainerDao.findByEmail(trainerEmail)
-				.map(trainerEntity -> calculateAverageRating(trainerEntity.getTrainerEntityId()))
+				.map(trainerDocument -> calculateAverageRating(Long.valueOf(trainerDocument.getId())))
 				.map(Either::<ErrorMsg, Double>right)
 				.orElseGet(() -> Either.left(new ErrorMsg(TrainerErrorMessageType.NO_TRAINER.toString())));
 	}
 
 	public Either<ErrorMsg, RatingTrainerDto> setRateForTheTrainer(String trainerEmail,
 																   String ratingForTrainer) {
-		ModelMapper modelMapper = prepareModelMapperForExistingTraining();
-
 		return trainerDao.findByEmail(trainerEmail)
-				.map(trainerEntity -> prepareRatingTrainerEntity(ratingForTrainer, trainerEntity))
+				.map(trainerDocument -> prepareRatingTrainerDocument(ratingForTrainer, trainerDocument))
 				.map(ratingTrainerDao::save)
-				.map(ratingTrainerEntity -> tryToSaveRating(modelMapper, ratingTrainerEntity))
+				.map(this::saveRating)
 				.orElseGet(() -> Either.left(new ErrorMsg(TrainerErrorMessageType.NO_TRAINER.toString())));
 	}
 
-	private Either<ErrorMsg, RatingTrainerDto> tryToSaveRating(ModelMapper modelMapper,
-															   RatingTrainerEntity savedRating) {
+	private Either<ErrorMsg, RatingTrainerDto> saveRating(RatingTrainerDocument savedRating) {
 		return Optional.ofNullable(savedRating)
-				.map(ratingTrainerEntity -> modelMapper.map(ratingTrainerEntity, RatingTrainerDto.class))
+				.map(ratingTrainerConverter::ratingTrainerDocumentToRatingTrainerDto)
 				.map(this::checkEitherResponseForRatedTrainer)
 				.orElse(Either.left(new ErrorMsg(TrainerErrorMessageType.RATING_ERROR.toString())));
 	}
 
-	private RatingTrainerEntity prepareRatingTrainerEntity(String ratingForTrainer,
-														   TrainerEntity trainerEntity) {
-		return RatingTrainerEntity.builder()
-				.firstName(trainerEntity.getFirstName())
-				.lastName(trainerEntity.getFirstName())
+	private RatingTrainerDocument prepareRatingTrainerDocument(String ratingForTrainer,
+															   TrainerDocument trainerDocument) {
+		return RatingTrainerDocument.builder()
+				.firstName(trainerDocument.getFirstName())
+				.lastName(trainerDocument.getFirstName())
 				.rating(Integer.parseInt(ratingForTrainer))
-				.trainerId(trainerEntity.getTrainerEntityId())
+				.trainerId(Long.valueOf(trainerDocument.getId()))
 				.build();
 	}
 
-	private LinkedHashMap<String, Double> prepareSortedTrainersByRating(List<TrainerEntity> trainerEntitiesList) {
-		Map<String, Double> trainersWithRating = getTrainersWithRatings(trainerEntitiesList);
+	private LinkedHashMap<String, Double> prepareSortedTrainersByRating(List<TrainerDocument> trainerDocuments) {
+		Map<String, Double> trainersWithRating = getTrainersWithRatings(trainerDocuments);
 		return trainersWithRating.entrySet().stream()
 				.sorted(Comparator.comparingDouble(Map.Entry::getValue))
 				.collect(
@@ -96,19 +92,21 @@ public class TrainerRatingService {
 				);
 	}
 
-	private Map<String, Double> getTrainersWithRatings(List<TrainerEntity> trainerEntitiesList) {
+	private Map<String, Double> getTrainersWithRatings(List<TrainerDocument> trainerDocuments) {
 		Map<String, Double> trainersWithRating = new HashMap<>();
-		for (TrainerEntity entity : trainerEntitiesList) {
-			trainersWithRating.put(entity.getFirstName() + " " + entity.getLastName(), calculateAverageRating(entity.getTrainerEntityId()));
+		for (TrainerDocument document : trainerDocuments) {
+			trainersWithRating.put(
+					document.getFirstName() + " " + document.getLastName(),
+					calculateAverageRating(Long.valueOf(document.getId())));
 		}
 		return trainersWithRating;
 	}
 
 	private Double calculateAverageRating(Long trainerId) {
 		return ratingTrainerDao.findByTrainerId(trainerId)
-				.filter(ratingTrainerEntities -> !ratingTrainerEntities.isEmpty())
-				.map(ratingTrainerEntities -> ratingTrainerEntities.stream()
-						.mapToDouble(RatingTrainerEntity::getRating)
+				.filter(ratingTrainerDocuments -> !ratingTrainerDocuments.isEmpty())
+				.map(ratingTrainerDocuments -> ratingTrainerDocuments.stream()
+						.mapToDouble(RatingTrainerDocument::getRating)
 						.average())
 				.filter(OptionalDouble::isPresent)
 				.map(OptionalDouble::getAsDouble)
@@ -119,13 +117,5 @@ public class TrainerRatingService {
 		return Optional.ofNullable(ratingTrainer)
 				.map(Either::<ErrorMsg, RatingTrainerDto>right)
 				.orElse(Either.left(new ErrorMsg(TrainerErrorMessageType.NOT_SUCCESSFULLY_MAPPING.toString())));
-	}
-
-	private ModelMapper prepareModelMapperForExistingTraining() {
-		ModelMapper modelMapper = new ModelMapper();
-		modelMapper
-				.getConfiguration()
-				.setMatchingStrategy(MatchingStrategies.STRICT);
-		return modelMapper;
 	}
 }

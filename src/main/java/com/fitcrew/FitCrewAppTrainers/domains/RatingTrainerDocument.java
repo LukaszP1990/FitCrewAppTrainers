@@ -24,12 +24,12 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 public
-class RatingTrainerEntity implements Serializable {
+class RatingTrainerDocument implements Serializable {
 
 	private static final long serialVersionUID = 1421658171867127534L;
 
 	@Id
-	private long ratingTrainerId;
+	private String id;
 
 	@Field(value = "RATING")
 	@NotNull
