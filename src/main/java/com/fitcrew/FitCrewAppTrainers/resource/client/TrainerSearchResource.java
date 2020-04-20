@@ -1,5 +1,12 @@
 package com.fitcrew.FitCrewAppTrainers.resource.client;
 
+import com.fitcrew.FitCrewAppTrainers.resolver.ResponseResolver;
+import com.fitcrew.FitCrewAppTrainers.service.client.search.TrainerSearchServiceFacade;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,25 +14,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fitcrew.FitCrewAppTrainers.resolver.ResponseResolver;
-import com.fitcrew.FitCrewAppTrainers.service.client.TrainerSearchService;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import lombok.extern.slf4j.Slf4j;
-
 @Api(value = "Search trainers resource")
 @Slf4j
 @RestController
 @RequestMapping("/trainer/search/")
 class TrainerSearchResource {
 
-    private final TrainerSearchService trainerSearchService;
+    private final TrainerSearchServiceFacade trainerSearchServiceFacade;
 
-    public TrainerSearchResource(TrainerSearchService trainerSearchService) {
-        this.trainerSearchService = trainerSearchService;
+    public TrainerSearchResource(TrainerSearchServiceFacade trainerSearchServiceFacade) {
+        this.trainerSearchServiceFacade = trainerSearchServiceFacade;
     }
 
     @ApiOperation(value = "Return all trainers")
@@ -43,7 +41,7 @@ class TrainerSearchResource {
                     MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity getTrainers() {
 
-        return ResponseResolver.resolve(trainerSearchService.getTrainers());
+        return ResponseResolver.resolve(trainerSearchServiceFacade.getTrainers());
     }
 
     @ApiOperation(value = "Return single trainer")
@@ -63,7 +61,7 @@ class TrainerSearchResource {
         log.debug("Basic information about trainer by trainer email address: {}", trainerEmail);
 
         return ResponseResolver.resolve(
-                trainerSearchService.getTrainer(trainerEmail)
+                trainerSearchServiceFacade.getTrainer(trainerEmail)
         );
     }
 }

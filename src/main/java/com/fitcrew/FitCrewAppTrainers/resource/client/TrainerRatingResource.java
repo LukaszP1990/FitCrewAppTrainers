@@ -1,21 +1,15 @@
 package com.fitcrew.FitCrewAppTrainers.resource.client;
 
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.fitcrew.FitCrewAppTrainers.resolver.ResponseResolver;
-import com.fitcrew.FitCrewAppTrainers.service.client.TrainerRatingService;
-
+import com.fitcrew.FitCrewAppTrainers.service.client.rating.TrainerRatingServiceFacade;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @Api(value = "Trainer rating resource")
 @Slf4j
@@ -23,10 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/trainer/rate/")
 class TrainerRatingResource {
 
-    private final TrainerRatingService trainerRatingService;
+    private final TrainerRatingServiceFacade trainerRatingServiceFacade;
 
-    public TrainerRatingResource(TrainerRatingService trainerRatingService) {
-        this.trainerRatingService = trainerRatingService;
+    public TrainerRatingResource(TrainerRatingServiceFacade trainerRatingServiceFacade) {
+        this.trainerRatingServiceFacade = trainerRatingServiceFacade;
     }
 
     @ApiOperation(value = "Return trainer rating")
@@ -47,7 +41,7 @@ class TrainerRatingResource {
         log.debug("Get trainer rating by trainer email address: {}", trainerEmail);
 
         return ResponseResolver.resolve(
-                trainerRatingService.getAverageRatingOfTrainer(trainerEmail)
+                trainerRatingServiceFacade.getAverageRatingOfTrainer(trainerEmail)
         );
     }
 
@@ -66,7 +60,7 @@ class TrainerRatingResource {
                     MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity getTrainersRanking() {
 
-        return ResponseResolver.resolve(trainerRatingService.getRankingOfTrainers());
+        return ResponseResolver.resolve(trainerRatingServiceFacade.getRankingOfTrainers());
     }
 
     @ApiOperation(value = "Return the rated trainer by the client")
@@ -84,10 +78,10 @@ class TrainerRatingResource {
                     MediaType.APPLICATION_XML_VALUE})
     public ResponseEntity rateTheTrainer(@PathVariable String trainerEmail,
                                          @PathVariable String ratingForTrainer) {
-        log.debug("Rating for trainer: {} \n by trainer email address: {}",ratingForTrainer, trainerEmail);
+        log.debug("Rating for trainer: {} \n by trainer email address: {}", ratingForTrainer, trainerEmail);
 
         return ResponseResolver.resolve(
-                trainerRatingService.setRateForTheTrainer(trainerEmail, ratingForTrainer)
+                trainerRatingServiceFacade.setRateForTheTrainer(trainerEmail, ratingForTrainer)
         );
     }
 }

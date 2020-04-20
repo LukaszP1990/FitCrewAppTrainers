@@ -1,17 +1,11 @@
 package com.fitcrew.FitCrewAppTrainers.feignclient;
 
-import java.util.List;
-
+import com.fitcrew.FitCrewAppModel.domain.model.TrainingModel;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
-import com.fitcrew.FitCrewAppModel.domain.model.TrainingDto;
+import java.util.List;
 
 @FeignClient(name = "training-service", path = "/training")
 public interface FeignTrainingService {
@@ -23,7 +17,7 @@ public interface FeignTrainingService {
             produces = {
                     MediaType.APPLICATION_JSON_VALUE,
                     MediaType.APPLICATION_XML_VALUE})
-    List<TrainingDto> getTrainerTrainings(@PathVariable String trainerEmail);
+    List<TrainingModel> getTrainerTrainings(@PathVariable String trainerEmail);
 
     @PostMapping(value = "/createTraining",
             consumes = {
@@ -32,7 +26,7 @@ public interface FeignTrainingService {
             produces = {
                     MediaType.APPLICATION_JSON_VALUE,
                     MediaType.APPLICATION_XML_VALUE})
-    TrainingDto createTraining(@RequestBody TrainingDto trainingDto);
+    TrainingModel createTraining(@RequestBody TrainingModel trainingModel);
 
     @DeleteMapping(value = "/deleteTraining/{trainerEmail}/trainerEmail/{trainingName}/trainingName",
             consumes = {
@@ -41,8 +35,8 @@ public interface FeignTrainingService {
             produces = {
                     MediaType.APPLICATION_JSON_VALUE,
                     MediaType.APPLICATION_XML_VALUE})
-    TrainingDto deleteTraining(@PathVariable String trainerEmail,
-                               @PathVariable String trainingName);
+    TrainingModel deleteTraining(@PathVariable String trainerEmail,
+                                 @PathVariable String trainingName);
 
     @PutMapping(value = "/updateTraining/{trainerEmail}/trainerEmail",
             consumes = {
@@ -51,8 +45,8 @@ public interface FeignTrainingService {
             produces = {
                     MediaType.APPLICATION_JSON_VALUE,
                     MediaType.APPLICATION_XML_VALUE})
-    TrainingDto updateTraining(@RequestBody TrainingDto trainingDto,
-                               @PathVariable String trainerEmail);
+    TrainingModel updateTraining(@RequestBody TrainingModel trainingModel,
+                                 @PathVariable String trainerEmail);
 
     @GetMapping(value = "/selectTraining/{trainerEmail}/trainerEmail/{trainingName}/trainingName",
             consumes = {
@@ -61,8 +55,8 @@ public interface FeignTrainingService {
             produces = {
                     MediaType.APPLICATION_JSON_VALUE,
                     MediaType.APPLICATION_XML_VALUE})
-    TrainingDto selectTraining(@PathVariable String trainerEmail,
-                               @PathVariable String trainingName);
+    TrainingModel selectTraining(@PathVariable String trainerEmail,
+                                 @PathVariable String trainingName);
 
     @GetMapping(value = "/clientsWhoBoughtTraining/{trainingName}/trainingName",
             consumes = {

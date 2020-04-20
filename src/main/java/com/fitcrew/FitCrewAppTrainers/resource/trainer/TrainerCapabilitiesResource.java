@@ -1,26 +1,18 @@
 package com.fitcrew.FitCrewAppTrainers.resource.trainer;
 
-import javax.validation.Valid;
-
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.fitcrew.FitCrewAppModel.domain.model.TrainingDto;
+import com.fitcrew.FitCrewAppTrainers.dto.TrainingDto;
 import com.fitcrew.FitCrewAppTrainers.resolver.ResponseResolver;
-import com.fitcrew.FitCrewAppTrainers.service.trainer.TrainerCapabilitiesService;
-
+import com.fitcrew.FitCrewAppTrainers.service.trainer.capabilities.TrainerCapabilitiesServiceFacade;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @Api(value = "Trainer capabilities resource")
 @Slf4j
@@ -28,10 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/trainer")
 class TrainerCapabilitiesResource {
 
-    private final TrainerCapabilitiesService trainerCapabilitiesService;
+    private final TrainerCapabilitiesServiceFacade trainerCapabilitiesServiceFacade;
 
-    public TrainerCapabilitiesResource(TrainerCapabilitiesService trainerCapabilitiesService) {
-        this.trainerCapabilitiesService = trainerCapabilitiesService;
+    public TrainerCapabilitiesResource(TrainerCapabilitiesServiceFacade trainerCapabilitiesServiceFacade) {
+        this.trainerCapabilitiesServiceFacade = trainerCapabilitiesServiceFacade;
     }
 
     @ApiOperation(value = "Return basic informations about trainer")
@@ -53,7 +45,7 @@ class TrainerCapabilitiesResource {
         log.debug("Basic information about trainer by trainer email address: {}", trainerEmail);
 
         return ResponseResolver.resolve(
-                trainerCapabilitiesService.getBasicInformationAboutTrainer(trainerEmail)
+                trainerCapabilitiesServiceFacade.getBasicInformationAboutTrainer(trainerEmail)
         );
     }
 
@@ -76,7 +68,7 @@ class TrainerCapabilitiesResource {
         log.debug("Trainings by trainer email address: {}", trainerEmail);
 
         return ResponseResolver.resolve(
-                trainerCapabilitiesService.getTrainerTrainings(trainerEmail)
+                trainerCapabilitiesServiceFacade.getTrainerTrainings(trainerEmail)
         );
     }
 
@@ -99,7 +91,7 @@ class TrainerCapabilitiesResource {
         log.debug("Create training: {}", trainingDto);
 
         return ResponseResolver.resolve(
-                trainerCapabilitiesService.createTraining(trainingDto)
+                trainerCapabilitiesServiceFacade.createTraining(trainingDto)
         );
     }
 
@@ -123,7 +115,7 @@ class TrainerCapabilitiesResource {
         log.debug("Delete training by trainer email address: {} \n training name: {}", trainerEmail, trainingName);
 
         return ResponseResolver.resolve(
-                trainerCapabilitiesService.deleteTraining(trainerEmail, trainingName)
+                trainerCapabilitiesServiceFacade.deleteTraining(trainerEmail, trainingName)
         );
     }
 
@@ -147,7 +139,7 @@ class TrainerCapabilitiesResource {
         log.debug("Update training: {} \n by trainer email address: {}", trainingDto, trainerEmail);
 
         return ResponseResolver.resolve(
-                trainerCapabilitiesService.updateTraining(trainingDto, trainerEmail)
+                trainerCapabilitiesServiceFacade.updateTraining(trainingDto, trainerEmail)
         );
     }
 
@@ -171,7 +163,7 @@ class TrainerCapabilitiesResource {
         log.debug("Send training by trainer email address: {} \n training name: {}", trainerEmail, trainingName);
 
         return ResponseResolver.resolve(
-                trainerCapabilitiesService.selectTrainingToSend(trainerEmail, trainingName)
+                trainerCapabilitiesServiceFacade.selectTrainingToSend(trainerEmail, trainingName)
         );
     }
 
@@ -194,7 +186,7 @@ class TrainerCapabilitiesResource {
         log.debug("Clients who bought from trainer training: {}", trainingName);
 
         return ResponseResolver.resolve(
-                trainerCapabilitiesService.getClientsWhoGetTrainingFromTrainer(trainingName)
+                trainerCapabilitiesServiceFacade.getClientsWhoGetTrainingFromTrainer(trainingName)
         );
     }
 }

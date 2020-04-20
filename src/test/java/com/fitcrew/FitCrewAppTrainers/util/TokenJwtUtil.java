@@ -1,30 +1,31 @@
 package com.fitcrew.FitCrewAppTrainers.util;
 
-import java.util.Date;
-
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
+import java.util.Date;
+
 class TokenJwtUtil {
 
-	private static final String AUTHORITIES_KEY = "roles";
-	private static final String FULL_NAME = "fullName";
-	private static final String USER_ID = "userId";
+    private static final String AUTHORITIES_KEY = "roles";
+    private static final String FULL_NAME = "fullName";
+    private static final String USER_ID = "userId";
 
-	private TokenJwtUtil() {}
+    private TokenJwtUtil() {
+    }
 
-	static String createToken(String userName, Integer userId, String role, String secret) {
+    static String createToken(String secret) {
 
-		long now = (new Date()).getTime();
-		Date validity = new Date(now + 43200 * 1000);
+        long now = (new Date()).getTime();
+        Date validity = new Date(now + 43200 * 1000);
 
-		return Jwts.builder()
-				.setSubject(userName)
-				.claim(USER_ID, userId)
-				.claim(AUTHORITIES_KEY, role)
-				.claim(FULL_NAME, userName + " " + userName)
-				.signWith(SignatureAlgorithm.HS512, secret)
-				.setExpiration(validity)
-				.compact();
-	}
+        return Jwts.builder()
+                .setSubject("test")
+                .claim(USER_ID, 121)
+                .claim(AUTHORITIES_KEY, "test")
+                .claim(FULL_NAME, "test" + " " + "test")
+                .signWith(SignatureAlgorithm.HS512, secret)
+                .setExpiration(validity)
+                .compact();
+    }
 }

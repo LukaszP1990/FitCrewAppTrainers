@@ -1,15 +1,13 @@
 package com.fitcrew.FitCrewAppTrainers.security;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Objects;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fitcrew.FitCrewAppModel.domain.model.TrainerModel;
+import com.fitcrew.FitCrewAppTrainers.dto.LoginDto;
+import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
+import com.fitcrew.FitCrewAppTrainers.service.trainer.signin.TrainerSignInService;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.vavr.control.Either;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,81 +16,79 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fitcrew.FitCrewAppModel.domain.model.LoginDto;
-import com.fitcrew.FitCrewAppModel.domain.model.TrainerDto;
-import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
-import com.fitcrew.FitCrewAppTrainers.service.trainer.TrainerSignInService;
-
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.vavr.control.Either;
+import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Objects;
 
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-	private final TrainerSignInService trainerSignInService;
-	private final Environment environment;
+    private final TrainerSignInService trainerSignInService;
+    private final Environment environment;
 
-	AuthenticationFilter(Environment environment,
-						 AuthenticationManager authenticationManager,
-						 TrainerSignInService trainerSignInService) {
-		this.environment = environment;
-		this.trainerSignInService = trainerSignInService;
-		super.setAuthenticationManager(authenticationManager);
-	}
+    AuthenticationFilter(Environment environment,
+                         AuthenticationManager authenticationManager,
+                         TrainerSignInService trainerSignInService) {
+        this.environment = environment;
+        this.trainerSignInService = trainerSignInService;
+        super.setAuthenticationManager(authenticationManager);
+    }
 
-	@Override
-	public Authentication attemptAuthentication(HttpServletRequest request,
-												HttpServletResponse response) throws AuthenticationException {
+    @Override
+    public Authentication attemptAuthentication(HttpServletRequest request,
+                                                HttpServletResponse response) throws AuthenticationException {
 
-		try {
-			LoginDto cred = new ObjectMapper()
-					.readValue(request.getInputStream(), LoginDto.class);
+        try {
+            LoginDto cred = new ObjectMapper()
+                    .readValue(request.getInputStream(), LoginDto.class);
 
-			return getAuthenticationManager().authenticate(
-					new UsernamePasswordAuthenticationToken(
-							cred.getEmail(),
-							cred.getPassword(),
-							new ArrayList<>()
-					)
-			);
+            return getAuthenticationManager().authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            cred.getEmail(),
+                            cred.getPassword(),
+                            new ArrayList<>()
+                    )
+            );
 
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	@Override
-	protected void successfulAuthentication(HttpServletRequest req,
-											HttpServletResponse res,
-											FilterChain chain,
-											Authentication auth) throws IOException, ServletException {
+    @Override
+    protected void successfulAuthentication(HttpServletRequest req,
+                                            HttpServletResponse res,
+                                            FilterChain chain,
+                                            Authentication auth) {
 
-		String email = ((User) auth.getPrincipal()).getUsername();
-		Either<ErrorMsg, TrainerDto> trainerDetailsByEmail = trainerSignInService.getTrainerDetailsByEmail(email);
+        String email = ((User) auth.getPrincipal()).getUsername();
+        Either<ErrorMsg, TrainerModel> trainerDetailsByEmail = trainerSignInService.getTrainerDetailsByEmail(email);
 
-		if (trainerDetailsByEmail.isRight()) {
-			String token = createJwtToken(trainerDetailsByEmail.get());
-			setHeaderResponse(res, trainerDetailsByEmail.get(), token);
-		}
-	}
+        if (trainerDetailsByEmail.isRight()) {
+            String token = createJwtToken(trainerDetailsByEmail.get());
+            setHeaderResponse(res, trainerDetailsByEmail.get(), token);
+        }
+    }
 
-	private void setHeaderResponse(HttpServletResponse res, TrainerDto trainerDetailsByEmail, String token) {
-		res.addHeader("token", token);
-		res.addHeader("userId", trainerDetailsByEmail.getTrainerId());
-	}
+    private void setHeaderResponse(HttpServletResponse res, TrainerModel trainerDetailsByEmail, String token) {
+        res.addHeader("token", token);
+        res.addHeader("userId", trainerDetailsByEmail.getTrainerId());
+    }
 
-	private String createJwtToken(TrainerDto trainerDetailsByEmail) {
-		return Jwts.builder()
-				.setSubject(trainerDetailsByEmail.getTrainerId())
-				.setExpiration(new Date(
-						System.currentTimeMillis() + Long.parseLong(
-								Objects.requireNonNull(
-										environment.getProperty("token.expiration_time")
-								)
-						)
-				))
-				.signWith(SignatureAlgorithm.HS512, environment.getProperty("token.secret"))
-				.compact();
-	}
+    private String createJwtToken(TrainerModel trainerDetailsByEmail) {
+        return Jwts.builder()
+                .setSubject(trainerDetailsByEmail.getTrainerId())
+                .setExpiration(new Date(
+                        System.currentTimeMillis() + Long.parseLong(
+                                Objects.requireNonNull(
+                                        environment.getProperty("token.expiration_time")
+                                )
+                        )
+                ))
+                .signWith(SignatureAlgorithm.HS512, environment.getProperty("token.secret"))
+                .compact();
+    }
 }

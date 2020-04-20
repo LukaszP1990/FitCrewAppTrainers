@@ -1,33 +1,58 @@
 package com.fitcrew.FitCrewAppTrainers.util;
 
+import com.fitcrew.FitCrewAppModel.domain.model.TrainingModel;
+import com.fitcrew.FitCrewAppTrainers.dto.TrainingDto;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import com.fitcrew.FitCrewAppModel.domain.model.TrainingDto;
-
 public class TrainingResourceMockUtil {
 
-	public static List<TrainingDto> getListOfTrainings() {
-		return IntStream.rangeClosed(1, 3)
-				.mapToObj(value -> prepareTrainingData(value))
-				.collect(Collectors.toList());
-	}
+    private static String TRAINER_EMAIL = "mockedTrainer@gmail.com";
+    private static String DESCRIPTION = "default description";
+    private static String NAME = "default name";
+    private static String TRAINING = "default description";
 
-	public static TrainingDto getTraining(int value) {
-		return prepareTrainingData(value);
-	}
+    public static List<TrainingModel> getListOfModelTrainings() {
+        return IntStream.rangeClosed(1, 3)
+                .mapToObj(TrainingResourceMockUtil::prepareTrainingModelData)
+                .collect(Collectors.toList());
+    }
 
-	public static TrainingDto updateTrainingDto(int value) {
-		return prepareTrainingData(value);
-	}
+    public static TrainingDto getTrainingDto(int value) {
+        return prepareTrainingDtoData(value);
+    }
 
-	private static TrainingDto prepareTrainingData(int value) {
-		return TrainingDto.builder()
-				.description("default description")
-				.trainerEmail("mockedTrainer@gmail.com")
-				.trainingName("default name" + " " + value)
-				.training("some training")
-				.build();
-	}
+    public static TrainingDto getNotValidTrainingDto() {
+        return prepareNotValidTrainingDtoData();
+    }
+
+    public static TrainingModel getTrainingModel(int value) {
+        return prepareTrainingModelData(value);
+    }
+
+    private static TrainingDto prepareTrainingDtoData(int value) {
+        return TrainingDto.builder()
+                .description(DESCRIPTION)
+                .trainerEmail(TRAINER_EMAIL)
+                .trainingName(NAME + " " + value)
+                .training(TRAINING)
+                .build();
+    }
+
+    private static TrainingDto prepareNotValidTrainingDtoData() {
+        return TrainingDto.builder()
+                .description(DESCRIPTION)
+                .build();
+    }
+
+    private static TrainingModel prepareTrainingModelData(int value) {
+        return TrainingModel.builder()
+                .description(DESCRIPTION)
+                .trainerEmail(TRAINER_EMAIL)
+                .trainingName(NAME + " " + value)
+                .training(TRAINING)
+                .build();
+    }
 }
