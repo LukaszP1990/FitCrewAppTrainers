@@ -3,11 +3,9 @@ package com.fitcrew.FitCrewAppTrainers.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fitcrew.FitCrewAppModel.domain.model.TrainerModel;
 import com.fitcrew.FitCrewAppTrainers.dto.LoginDto;
-import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
 import com.fitcrew.FitCrewAppTrainers.service.trainer.signin.TrainerSignInService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.vavr.control.Either;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -64,11 +62,11 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                                             Authentication auth) {
 
         String email = ((User) auth.getPrincipal()).getUsername();
-        Either<ErrorMsg, TrainerModel> trainerDetailsByEmail = trainerSignInService.getTrainerDetailsByEmail(email);
+        var trainerDetailsByEmail = trainerSignInService.getTrainerDetailsByEmail(email);
 
         trainerDetailsByEmail
                 .map(this::createJwtToken)
-                .peek(s -> setHeaderResponse(res, trainerDetailsByEmail.get(), s));
+                .peek(token -> setHeaderResponse(res, trainerDetailsByEmail.get(), token));
     }
 
     private void setHeaderResponse(HttpServletResponse res,
