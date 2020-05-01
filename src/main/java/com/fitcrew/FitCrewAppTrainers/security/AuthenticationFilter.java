@@ -61,7 +61,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                                             FilterChain chain,
                                             Authentication auth) {
 
-        String email = ((User) auth.getPrincipal()).getUsername();
+        var email = ((User) auth.getPrincipal()).getUsername();
         var trainerDetailsByEmail = trainerSignInService.getTrainerDetailsByEmail(email);
 
         trainerDetailsByEmail
