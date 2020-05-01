@@ -83,6 +83,9 @@ class TrainerCapabilitiesServiceTest {
     @Test
     void shouldNotGetClientsWhoGetTrainingFromTrainer() {
 
+        when(feignTrainingService.clientsWhoBoughtTraining(anyString()))
+                .thenReturn(null);
+
         Either<ErrorMsg, List<String>> noClients =
                 trainerCapabilitiesService.getClientsWhoGetTrainingFromTrainer(TRAINING_NAME);
         assertNotNull(noClients);

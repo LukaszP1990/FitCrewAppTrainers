@@ -1,7 +1,7 @@
-package com.fitcrew.FitCrewAppTrainers.resource.validation;
+package com.fitcrew.FitCrewAppTrainers.validation;
 
-import com.fitcrew.FitCrewAppTrainers.dto.RatingTrainerDto;
-import com.fitcrew.FitCrewAppTrainers.dto.validation.NotAllRequiredValueSetInRatingTrainerDto;
+import com.fitcrew.FitCrewAppTrainers.dto.EmailDto;
+import com.fitcrew.FitCrewAppTrainers.dto.validation.NotAllRequiredValueSetInEmailDto;
 import com.fitcrew.FitCrewAppTrainers.util.TrainerResourceMockUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,32 +20,32 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-class NotAllRequiredValueSetInRatingTrainerDtoTest {
+class NotAllRequiredValueSetInEmailDtoTest {
 
-    private static RatingTrainerDto validRatingTrainerDto = TrainerResourceMockUtil.getRatingTrainerDto();
-    private static RatingTrainerDto notValidRatingTrainerDto = TrainerResourceMockUtil.getNotValidRatingTrainerDto();
+    private static EmailDto validEmailDto = TrainerResourceMockUtil.createEmailDto();
+    private static EmailDto notValidEmailDto =  TrainerResourceMockUtil.sendNotValidEmailDto();
 
     @Mock
-    private NotAllRequiredValueSetInRatingTrainerDto.NotAllRequiredValueSetInRatingTrainerDtoValidator ratingTrainerValidator;
+    private NotAllRequiredValueSetInEmailDto.NotAllRequiredValueSetInEmailDtoValidator emailValidator;
 
     @Mock
     ConstraintValidatorContext constraintValidatorContext;
 
     @BeforeEach
     void setUp() {
-        when(ratingTrainerValidator.isValid(any(), any())).thenCallRealMethod();
+        when(emailValidator.isValid(any(), any())).thenCallRealMethod();
     }
 
     @Test
     void shouldSucceedWhenRequiredValuesHaveBeenSet() {
 
-        assertTrue(ratingTrainerValidator
-                .isValid(validRatingTrainerDto, constraintValidatorContext));
+        assertTrue(emailValidator
+                .isValid(validEmailDto, constraintValidatorContext));
     }
 
     @Test
     void shouldFailWhenWhenRequiredValuesHaveNotBeenSet() {
-        assertFalse(ratingTrainerValidator
-                .isValid(notValidRatingTrainerDto, constraintValidatorContext));
+        assertFalse(emailValidator
+                .isValid(notValidEmailDto, constraintValidatorContext));
     }
 }

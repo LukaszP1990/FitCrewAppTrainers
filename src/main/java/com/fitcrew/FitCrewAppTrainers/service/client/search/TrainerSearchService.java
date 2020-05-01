@@ -29,7 +29,6 @@ public class TrainerSearchService {
 
     public Either<ErrorMsg, List<TrainerModel>> getTrainers() {
         return Optional.ofNullable(trainerDao.findAll())
-                .filter(trainerDocuments -> !trainerDocuments.isEmpty())
                 .map(this::mapTrainerDocumentToModel)
                 .map(this::checkEitherResponseForTrainers)
                 .orElseGet(() -> Either.left(new ErrorMsg(TrainerErrorMessageType.NO_TRAINERS.toString())));

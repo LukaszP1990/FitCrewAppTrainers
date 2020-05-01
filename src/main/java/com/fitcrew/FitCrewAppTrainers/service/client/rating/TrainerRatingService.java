@@ -84,18 +84,15 @@ public class TrainerRatingService {
     }
 
     private Map<String, Double> getTrainersWithRatings(List<TrainerDocument> trainerDocuments) {
-        Map<String, Double> trainersWithRating = new HashMap<>();
-        for (TrainerDocument document : trainerDocuments) {
-            trainersWithRating.put(
-                    document.getFirstName() + " " + document.getLastName(),
-                    calculateAverageRating(Long.valueOf(document.getId())));
-        }
-        return trainersWithRating;
+        return trainerDocuments.stream()
+                .collect(Collectors.toMap(
+                        trainerDocument -> trainerDocument.getFirstName() + " " + trainerDocument.getLastName(),
+                        trainerDocument -> calculateAverageRating(Long.valueOf(trainerDocument.getId())))
+                );
     }
 
     private Double calculateAverageRating(Long trainerId) {
         return ratingTrainerDao.findByTrainerId(trainerId)
-                .filter(ratingTrainerDocuments -> !ratingTrainerDocuments.isEmpty())
                 .map(ratingTrainerDocuments -> ratingTrainerDocuments.stream()
                         .mapToDouble(RatingTrainerDocument::getRating)
                         .average())

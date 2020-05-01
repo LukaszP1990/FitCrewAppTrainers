@@ -67,6 +67,7 @@ class TrainerAdminServiceTest {
     @Test
     void shouldNotGetTrainers() {
 
+        when(trainerDao.findAll()).thenReturn(null);
         Either<ErrorMsg, List<TrainerModel>> noTrainers = trainerAdminService.getTrainers();
 
         assertNotNull(noTrainers);

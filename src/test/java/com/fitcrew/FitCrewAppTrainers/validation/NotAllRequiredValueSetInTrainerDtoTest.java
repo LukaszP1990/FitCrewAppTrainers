@@ -1,4 +1,4 @@
-package com.fitcrew.FitCrewAppTrainers.resource.validation;
+package com.fitcrew.FitCrewAppTrainers.validation;
 
 import com.fitcrew.FitCrewAppTrainers.dto.TrainerDto;
 import com.fitcrew.FitCrewAppTrainers.dto.validation.NotAllRequiredValueSetInTrainerDto;

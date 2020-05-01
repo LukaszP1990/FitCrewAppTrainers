@@ -38,7 +38,6 @@ public class TrainerCapabilitiesService {
 
     public Either<ErrorMsg, List<String>> getClientsWhoGetTrainingFromTrainer(String trainingName) {
         return Optional.ofNullable(feignTrainingService.clientsWhoBoughtTraining(trainingName))
-                .filter(clientNames -> !clientNames.isEmpty())
                 .map(Either::<ErrorMsg, List<String>>right)
                 .orElseGet(() -> Either.left(new ErrorMsg(TrainerErrorMessageType.NO_CLIENT_BOUGHT_TRAINING.toString())));
     }
