@@ -35,7 +35,7 @@ public class TrainerCreateService {
     }
 
     public Either<ErrorMsg, TrainerModel> createTrainer(TrainerDto trainerDto) {
-        return Optional.of(trainerDto)
+        return Optional.ofNullable(trainerDto)
                 .map(this::setPredefinedData)
                 .map(trainerDocumentDtoConverter::trainerDtoToTrainerDocument)
                 .map(trainerDao::save)

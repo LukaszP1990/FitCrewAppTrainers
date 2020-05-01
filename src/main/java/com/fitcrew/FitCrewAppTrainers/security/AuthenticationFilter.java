@@ -42,17 +42,16 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                                                 HttpServletResponse response) throws AuthenticationException {
 
         try {
-            LoginDto cred = new ObjectMapper()
+            LoginDto loginDto = new ObjectMapper()
                     .readValue(request.getInputStream(), LoginDto.class);
 
             return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            cred.getEmail(),
-                            cred.getPassword(),
+                            loginDto.getEmail(),
+                            loginDto.getPassword(),
                             new ArrayList<>()
                     )
             );
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -67,13 +66,14 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         String email = ((User) auth.getPrincipal()).getUsername();
         Either<ErrorMsg, TrainerModel> trainerDetailsByEmail = trainerSignInService.getTrainerDetailsByEmail(email);
 
-        if (trainerDetailsByEmail.isRight()) {
-            String token = createJwtToken(trainerDetailsByEmail.get());
-            setHeaderResponse(res, trainerDetailsByEmail.get(), token);
-        }
+        trainerDetailsByEmail
+                .map(this::createJwtToken)
+                .peek(s -> setHeaderResponse(res, trainerDetailsByEmail.get(), s));
     }
 
-    private void setHeaderResponse(HttpServletResponse res, TrainerModel trainerDetailsByEmail, String token) {
+    private void setHeaderResponse(HttpServletResponse res,
+                                   TrainerModel trainerDetailsByEmail,
+                                   String token) {
         res.addHeader("token", token);
         res.addHeader("userId", trainerDetailsByEmail.getTrainerId());
     }
@@ -81,14 +81,14 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private String createJwtToken(TrainerModel trainerDetailsByEmail) {
         return Jwts.builder()
                 .setSubject(trainerDetailsByEmail.getTrainerId())
-                .setExpiration(new Date(
-                        System.currentTimeMillis() + Long.parseLong(
-                                Objects.requireNonNull(
-                                        environment.getProperty("token.expiration_time")
-                                )
-                        )
-                ))
+                .setExpiration(new Date(getExpiration()))
                 .signWith(SignatureAlgorithm.HS512, environment.getProperty("token.secret"))
                 .compact();
+    }
+
+    private long getExpiration() {
+        return System.currentTimeMillis() + Long.parseLong(
+                Objects.requireNonNull(environment.getProperty("token.expiration_time"))
+        );
     }
 }

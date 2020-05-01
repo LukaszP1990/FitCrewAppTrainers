@@ -40,7 +40,7 @@ public class TrainerCapabilitiesService {
         return Optional.ofNullable(feignTrainingService.clientsWhoBoughtTraining(trainingName))
                 .filter(clientNames -> !clientNames.isEmpty())
                 .map(Either::<ErrorMsg, List<String>>right)
-                .orElse(Either.left(new ErrorMsg(TrainerErrorMessageType.NO_CLIENT_BOUGHT_TRAINING.toString())));
+                .orElseGet(() -> Either.left(new ErrorMsg(TrainerErrorMessageType.NO_CLIENT_BOUGHT_TRAINING.toString())));
     }
 
     public Either<ErrorMsg, TrainerModel> getBasicInformationAboutTrainer(String trainerEmail) {
@@ -94,19 +94,19 @@ public class TrainerCapabilitiesService {
     private Either<ErrorMsg, TrainingModel> checkEitherResponseForTraining(TrainingModel training) {
         return Optional.ofNullable(training)
                 .map(Either::<ErrorMsg, TrainingModel>right)
-                .orElse(Either.left(new ErrorMsg(TrainerErrorMessageType.NOT_SUCCESSFULLY_MAPPING.toString())));
+                .orElseGet(() -> Either.left(new ErrorMsg(TrainerErrorMessageType.NOT_SUCCESSFULLY_MAPPING.toString())));
     }
 
     private Either<ErrorMsg, List<TrainingModel>> checkEitherResponseForTrainings(List<TrainingModel> training) {
         return Optional.ofNullable(training)
                 .map(Either::<ErrorMsg, List<TrainingModel>>right)
-                .orElse(Either.left(new ErrorMsg(TrainerErrorMessageType.NOT_SUCCESSFULLY_MAPPING.toString())));
+                .orElseGet(() -> Either.left(new ErrorMsg(TrainerErrorMessageType.NOT_SUCCESSFULLY_MAPPING.toString())));
     }
 
     private Either<ErrorMsg, TrainerModel> checkEitherResponseForTrainer(TrainerModel trainer) {
         return Optional.ofNullable(trainer)
                 .map(Either::<ErrorMsg, TrainerModel>right)
-                .orElse(Either.left(new ErrorMsg(TrainerErrorMessageType.NOT_SUCCESSFULLY_MAPPING.toString())));
+                .orElseGet(() -> Either.left(new ErrorMsg(TrainerErrorMessageType.NOT_SUCCESSFULLY_MAPPING.toString())));
     }
 }
 

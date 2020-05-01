@@ -8,7 +8,6 @@ import com.fitcrew.FitCrewAppTrainers.domains.RatingTrainerDocument;
 import com.fitcrew.FitCrewAppTrainers.domains.TrainerDocument;
 import com.fitcrew.FitCrewAppTrainers.enums.TrainerErrorMessageType;
 import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
-import com.google.common.collect.Lists;
 import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,11 +32,11 @@ public class TrainerRatingService {
     }
 
     public Either<ErrorMsg, LinkedHashMap<String, Double>> getRankingOfTrainers() {
-        return Optional.of(Lists.newArrayList(trainerDao.findAll()))
+        return Optional.ofNullable(trainerDao.findAll())
                 .map(this::prepareSortedTrainersByRating)
                 .filter(stringDoubleLinkedHashMap -> !stringDoubleLinkedHashMap.isEmpty())
                 .map(Either::<ErrorMsg, LinkedHashMap<String, Double>>right)
-                .orElse(Either.left(new ErrorMsg(TrainerErrorMessageType.NO_TRAINERS_SORTED.toString())));
+                .orElseGet(() -> Either.left(new ErrorMsg(TrainerErrorMessageType.NO_TRAINERS_SORTED.toString())));
     }
 
     public Either<ErrorMsg, Double> getAverageRatingOfTrainer(String trainerEmail) {
@@ -60,7 +59,7 @@ public class TrainerRatingService {
         return Optional.ofNullable(savedRating)
                 .map(ratingTrainerConverter::ratingTrainerDocumentToRatingTrainerModel)
                 .map(this::checkEitherResponseForRatedTrainer)
-                .orElse(Either.left(new ErrorMsg(TrainerErrorMessageType.RATING_ERROR.toString())));
+                .orElseGet(() -> Either.left(new ErrorMsg(TrainerErrorMessageType.RATING_ERROR.toString())));
     }
 
     private RatingTrainerDocument prepareRatingTrainerDocument(String ratingForTrainer,
@@ -74,7 +73,7 @@ public class TrainerRatingService {
     }
 
     private LinkedHashMap<String, Double> prepareSortedTrainersByRating(List<TrainerDocument> trainerDocuments) {
-        Map<String, Double> trainersWithRating = getTrainersWithRatings(trainerDocuments);
+        var trainersWithRating = getTrainersWithRatings(trainerDocuments);
         return trainersWithRating.entrySet().stream()
                 .sorted(Comparator.comparingDouble(Map.Entry::getValue))
                 .collect(
@@ -108,6 +107,6 @@ public class TrainerRatingService {
     private Either<ErrorMsg, RatingTrainerModel> checkEitherResponseForRatedTrainer(RatingTrainerModel ratingTrainer) {
         return Optional.ofNullable(ratingTrainer)
                 .map(Either::<ErrorMsg, RatingTrainerModel>right)
-                .orElse(Either.left(new ErrorMsg(TrainerErrorMessageType.NOT_SUCCESSFULLY_MAPPING.toString())));
+                .orElseGet(() -> Either.left(new ErrorMsg(TrainerErrorMessageType.NOT_SUCCESSFULLY_MAPPING.toString())));
     }
 }

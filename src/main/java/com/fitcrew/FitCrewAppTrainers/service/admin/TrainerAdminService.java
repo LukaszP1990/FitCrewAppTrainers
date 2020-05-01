@@ -36,7 +36,7 @@ public class TrainerAdminService {
                 .filter(trainerDocuments -> !trainerDocuments.isEmpty())
                 .map(this::mapTrainerDocumentsToModels)
                 .map(this::checkEitherResponseForTrainers)
-                .orElse(Either.left(new ErrorMsg(TrainerErrorMessageType.NO_TRAINER.toString())));
+                .orElseGet(() -> Either.left(new ErrorMsg(TrainerErrorMessageType.NO_TRAINER.toString())));
     }
 
     Either<ErrorMsg, TrainerModel> deleteTrainer(String trainerEmail) {
@@ -87,13 +87,13 @@ public class TrainerAdminService {
         return Optional.ofNullable(trainersToReturn)
                 .filter(trainers -> !trainers.isEmpty())
                 .map(Either::<ErrorMsg, List<TrainerModel>>right)
-                .orElse(Either.left(new ErrorMsg(TrainerErrorMessageType.NO_CLIENT_FOUND.toString())));
+                .orElseGet(() -> Either.left(new ErrorMsg(TrainerErrorMessageType.NO_CLIENT_FOUND.toString())));
     }
 
     private Either<ErrorMsg, TrainerModel> checkEitherResponseForTrainer(TrainerModel trainer) {
         return Optional.ofNullable(trainer)
                 .map(Either::<ErrorMsg, TrainerModel>right)
-                .orElse(Either.left(new ErrorMsg(TrainerErrorMessageType.NOT_SUCCESSFULLY_MAPPING.toString())));
+                .orElseGet(() -> Either.left(new ErrorMsg(TrainerErrorMessageType.NOT_SUCCESSFULLY_MAPPING.toString())));
     }
 
     private List<TrainerModel> mapTrainerDocumentsToModels(ArrayList<TrainerDocument> trainerDocuments) {

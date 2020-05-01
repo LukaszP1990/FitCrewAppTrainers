@@ -6,12 +6,10 @@ import com.fitcrew.FitCrewAppTrainers.dao.TrainerDao;
 import com.fitcrew.FitCrewAppTrainers.domains.TrainerDocument;
 import com.fitcrew.FitCrewAppTrainers.enums.TrainerErrorMessageType;
 import com.fitcrew.FitCrewAppTrainers.resolver.ErrorMsg;
-import com.google.common.collect.Lists;
 import io.vavr.control.Either;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -30,7 +28,7 @@ public class TrainerSearchService {
     }
 
     public Either<ErrorMsg, List<TrainerModel>> getTrainers() {
-        return Optional.of(Lists.newArrayList(trainerDao.findAll()))
+        return Optional.ofNullable(trainerDao.findAll())
                 .filter(trainerDocuments -> !trainerDocuments.isEmpty())
                 .map(this::mapTrainerDocumentToModel)
                 .map(this::checkEitherResponseForTrainers)
@@ -44,7 +42,7 @@ public class TrainerSearchService {
                 .orElseGet(() -> Either.left(new ErrorMsg(TrainerErrorMessageType.NO_TRAINER.toString())));
     }
 
-    private List<TrainerModel> mapTrainerDocumentToModel(ArrayList<TrainerDocument> trainerDocuments) {
+    private List<TrainerModel> mapTrainerDocumentToModel(List<TrainerDocument> trainerDocuments) {
         return trainerDocuments.stream()
                 .map(trainerModelConverter::trainerDocumentToTrainerModel)
                 .collect(Collectors.toList());
@@ -54,12 +52,12 @@ public class TrainerSearchService {
         return Optional.ofNullable(trainers)
                 .filter(trainersList -> !trainersList.isEmpty())
                 .map(Either::<ErrorMsg, List<TrainerModel>>right)
-                .orElse(Either.left(new ErrorMsg(TrainerErrorMessageType.NOT_SUCCESSFULLY_MAPPING.toString())));
+                .orElseGet(() -> Either.left(new ErrorMsg(TrainerErrorMessageType.NOT_SUCCESSFULLY_MAPPING.toString())));
     }
 
     private Either<ErrorMsg, TrainerModel> checkEitherResponseForTrainer(TrainerModel trainer) {
         return Optional.ofNullable(trainer)
                 .map(Either::<ErrorMsg, TrainerModel>right)
-                .orElse(Either.left(new ErrorMsg(TrainerErrorMessageType.NOT_SUCCESSFULLY_MAPPING.toString())));
+                .orElseGet(() -> Either.left(new ErrorMsg(TrainerErrorMessageType.NOT_SUCCESSFULLY_MAPPING.toString())));
     }
 }
