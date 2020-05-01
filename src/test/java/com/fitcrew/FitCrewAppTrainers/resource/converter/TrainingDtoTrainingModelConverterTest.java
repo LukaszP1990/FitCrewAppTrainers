@@ -19,7 +19,7 @@ class TrainingDtoTrainingModelConverterTest {
     private static String TRAINING = "default description";
 
     @Test
-    void shouldConvertTrainerDtoToTrainerDocument() {
+    void shouldConvertTrainerDtoToTrainerModel() {
         TrainingModel trainingModel = trainingConverter.trainingDtoToTrainingModel(trainingDto);
         assertNotNull(trainingModel);
         assertAll(() -> {

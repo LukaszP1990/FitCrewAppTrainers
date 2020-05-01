@@ -19,7 +19,7 @@ class EmailDocumentEmailDtoConverterTest {
     private static String BODY_OF_MESSAGE = "Hi this is a test message";
 
     @Test
-    void shouldConvertEmailDtoToEmailModel() {
+    void shouldConvertEmailDtoToEmailDocument() {
         EmailDocument emailDocument = emailConverter.emailDtoToEmailDocument(emailDto);
 
         assertNotNull(emailDocument);

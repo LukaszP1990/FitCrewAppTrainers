@@ -22,7 +22,7 @@ class TrainerDocumentTrainerModelConverterTest {
     private static String TRAINER_DESCRIPTION = "Description about mock trainer";
 
     @Test
-    void shouldConvertTrainerDtoToTrainerDocument() {
+    void shouldConvertTrainerDtoToTrainerModel() {
         TrainerModel trainerModel = trainerConverter.trainerDocumentToTrainerModel(trainerDocument);
         assertNotNull(trainerModel);
         assertAll(() -> {
