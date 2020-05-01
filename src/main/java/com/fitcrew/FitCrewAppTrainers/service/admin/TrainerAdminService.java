@@ -63,20 +63,23 @@ public class TrainerAdminService {
 
     private Either<ErrorMsg, TrainerModel> prepareTrainingUpdate(TrainerDto trainerDto,
                                                                  TrainerDocument trainerDocument) {
-        setNewValuesForClient(trainerDto, trainerDocument);
+        var trainerDocumentAfterUpdate = setNewValuesForTrainer(trainerDto, trainerDocument);
+        trainerDao.save(trainerDocumentAfterUpdate);
+
         return checkEitherResponseForTrainer(
-                trainerConverter.trainerDocumentToTrainerModel(trainerDocument)
+                trainerConverter.trainerDocumentToTrainerModel(trainerDocumentAfterUpdate)
         );
     }
 
-    private void setNewValuesForClient(TrainerDto trainerDto,
-                                       TrainerDocument foundTrainerDocumentByEmail) {
-        foundTrainerDocumentByEmail.setTrainerId(trainerDto.getTrainerId());
-        foundTrainerDocumentByEmail.setDateOfBirth(trainerDto.getDateOfBirth());
-        foundTrainerDocumentByEmail.setEncryptedPassword(trainerDto.getEncryptedPassword());
-        foundTrainerDocumentByEmail.setFirstName(trainerDto.getFirstName());
-        foundTrainerDocumentByEmail.setLastName(trainerDto.getLastName());
-        foundTrainerDocumentByEmail.setPhone(trainerDto.getPhone());
+    private TrainerDocument setNewValuesForTrainer(TrainerDto trainerDto,
+                                                   TrainerDocument trainerDocument) {
+        trainerDocument.setTrainerId(trainerDto.getTrainerId());
+        trainerDocument.setDateOfBirth(trainerDto.getDateOfBirth());
+        trainerDocument.setEncryptedPassword(trainerDto.getEncryptedPassword());
+        trainerDocument.setFirstName(trainerDto.getFirstName());
+        trainerDocument.setLastName(trainerDto.getLastName());
+        trainerDocument.setPhone(trainerDto.getPhone());
+        return trainerDocument;
     }
 
 
