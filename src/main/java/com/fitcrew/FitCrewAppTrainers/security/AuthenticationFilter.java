@@ -60,13 +60,12 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                                             HttpServletResponse res,
                                             FilterChain chain,
                                             Authentication auth) {
-
         var email = ((User) auth.getPrincipal()).getUsername();
         var trainerDetailsByEmail = trainerSignInService.getTrainerDetailsByEmail(email);
 
         trainerDetailsByEmail
                 .map(this::createJwtToken)
-                .peek(token -> setHeaderResponse(res, trainerDetailsByEmail.get(), token));
+                .forEach(token -> setHeaderResponse(res, trainerDetailsByEmail.get(), token));
     }
 
     private void setHeaderResponse(HttpServletResponse res,

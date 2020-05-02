@@ -49,7 +49,6 @@ public class TrainerSearchService {
 
     private Either<ErrorMsg, List<TrainerModel>> checkEitherResponseForTrainers(List<TrainerModel> trainers) {
         return Optional.ofNullable(trainers)
-                .filter(trainersList -> !trainersList.isEmpty())
                 .map(Either::<ErrorMsg, List<TrainerModel>>right)
                 .orElseGet(() -> Either.left(new ErrorMsg(TrainerErrorMessageType.NOT_SUCCESSFULLY_MAPPING.toString())));
     }
